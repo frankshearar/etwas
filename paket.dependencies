@@ -1,0 +1,14 @@
+source https://nuget.org/api/v2
+
+nuget EnterpriseLibrary.SemanticLogging
+nuget FAKE
+nuget FsPickler
+nuget FSharp.Formatting 2.8.0
+nuget FSharpVSPowerTools.Core 1.7.0
+nuget NUnit
+nuget NUnit.Runners
+nuget Microsoft.Diagnostics.Tracing.TraceEvent
+nuget Rx-Main
+nuget SourceLink.Fake
+nuget Suave
+nuget UnionArgParser
