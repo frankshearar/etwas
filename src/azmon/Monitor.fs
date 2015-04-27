@@ -15,7 +15,6 @@ open System.Reactive.Subjects
 
 let enableProviders (names: string list) (session: TraceEventSession) =
     names
-    |> List.map (fun s -> printfn "Enabling provider %s" s; s)
     |> List.map (fun s -> session.EnableProvider s)
     |> ignore // Map, not iter, because it looks slightly less rubbish to ignore at the end
 

@@ -8,6 +8,39 @@ open System
 open System.Diagnostics.Tracing
 open System.Threading
 
+// http://www.fssnip.net/hy =======================
+// inspired by http://stackoverflow.com/a/11191070
+
+open System
+
+type private Completed<'T>(value : 'T) =
+    inherit Exception()
+    member __.Value = value
+
+exception private Timeout
+
+type Async with
+    static member CancelAfter timeout (f : Async<'T>) =
+        let econt e = Async.FromContinuations(fun (_,econt,_) -> econt e)
+        let worker = async {
+            let! r = f
+            return! econt <| Completed(r)
+        }
+        let timer = async {
+            do! Async.Sleep timeout
+            return! econt Timeout
+        }
+
+        async {
+            try
+                let! _ = Async.Parallel [worker ; timer]
+                return failwith "unreachable exception reached."
+            with
+            | :? Completed<'T> as t -> return Some t.Value
+            | Timeout -> return None
+        }
+// =====================================
+
 [<EventSource(Name = "Ping")>]
 type PingEventSource() =
     inherit EventSource()
@@ -21,25 +54,33 @@ type PingEventSource() =
 // An EventSource _really really_ wants to be a Singleton.
 let ping = new PingEventSource()
 
-// Run the command, and return the (exit code, stdout)
-let sh program args: int * string =
+let run program args: Process option =
     let start = new ProcessStartInfo()
     start.UseShellExecute <- false
     start.FileName <- program
     start.Arguments <- args
+    start.RedirectStandardInput <- true
     start.RedirectStandardError <- true
     start.RedirectStandardOutput <- true
-    use p = new Process()
+    let p = new Process()
     p.StartInfo <- start
     try
         if p.Start() then
-            p.WaitForExit()
-            p.ExitCode, p.StandardOutput.ReadToEnd() + "\n-----\n" + p.StandardError.ReadToEnd()
+            Some p
         else
-            -1, sprintf "FAILED TO START THE PROCESS %A %A" program args
+            None
     with
     | :? System.ComponentModel.Win32Exception as e ->
-        -1, sprintf "%s: %s running %A %A" (e.GetType().Name) e.Message program args
+        None
+
+// Run the command, and return the (exit code, stdout)
+let sh program args: int * string =
+    match run program args with
+    | Some p ->
+        p.WaitForExit()
+        p.ExitCode, p.StandardOutput.ReadToEnd() + "\n-----\n" + p.StandardError.ReadToEnd()
+    | None ->
+        -1, sprintf "FAILED TO START THE PROCESS %A %A" program args
 
 let azmon = 
     let cwd = new DirectoryInfo(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory))
@@ -53,16 +94,33 @@ let ``Run with no args shows usage`` () =
     Assert.AreEqual(0, exitCode)
 
 [<Test>]
-let ``Run, printing to console, will print events``() =
+let ``Can log events out-of-process``() =
     // This will ensure we have at least one interesting event in the session
     let sess = new TraceEventSession("Azmon-Trace-Session", null)
     ping.Ping()
-    let canceller = new CancellationTokenSource()
-    canceller.CancelAfter(5000);
     let processForaBit = async {
-                            return sh azmon (sprintf "--source=%s" ping.Name)
+                            let proc = run azmon (sprintf "--source=%s" ping.Name)
+                            try
+                                match proc with
+                                | Some p ->
+                                    do! Async.Sleep 5000
+                                    p.StandardInput.WriteLine("\x3")
+                                    // I don't know why, but p.StandardOutput.ReadToEnd() blocks forever.
+                                    // We ^C'd to stdin - that should make the process stop, surely?!
+                                    let lines = [1..5]
+                                                |> List.map (fun _ -> p.StandardOutput.ReadLine())
+                                                |> List.fold (fun acc each -> acc + each) ""
+                                    return lines
+                                | None -> return "Process didn't run?"
+                            finally
+                                match proc with
+                                | Some p -> p.Kill()
+                                | None -> ()
                          }
-    let _, stdout = Async.RunSynchronously(processForaBit, cancellationToken = canceller.Token)
-    // Don't check the error code, because we exit abnormally.
-    Assert.IsNotEmpty(stdout)
-    Assert.That(stdout.Contains("ping"), (sprintf "ping not found in stdout: %s" stdout))
+    let stdout = processForaBit |> Async.CancelAfter 6000 |> Async.RunSynchronously
+    match stdout with
+    | Some s ->
+        Assert.IsNotEmpty(s)
+        // Not an actual event, this shows we see the advertised metadata of the event source.
+        Assert.That(s.Contains(@"ProviderName=""Ping"""), (sprintf "Ping event source not found in stdout: %s" s))
+    | None -> Assert.Fail("Something went wrong")
