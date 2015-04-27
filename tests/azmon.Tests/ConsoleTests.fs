@@ -4,9 +4,7 @@ open Microsoft.Diagnostics.Tracing.Session
 open NUnit.Framework
 open System.Diagnostics
 open System.IO
-open System
 open System.Diagnostics.Tracing
-open System.Threading
 
 // http://www.fssnip.net/hy =======================
 // inspired by http://stackoverflow.com/a/11191070
@@ -70,7 +68,7 @@ let run program args: Process option =
         else
             None
     with
-    | :? System.ComponentModel.Win32Exception as e ->
+    | :? System.ComponentModel.Win32Exception ->
         None
 
 // Run the command, and return the (exit code, stdout)
@@ -94,9 +92,10 @@ let ``Run with no args shows usage`` () =
     Assert.AreEqual(0, exitCode)
 
 [<Test>]
+// This test also, quietly, demonstrates that you can end monitoring
+// by giving the process a ^C on stdin.
 let ``Can log events out-of-process``() =
     // This will ensure we have at least one interesting event in the session
-    let sess = new TraceEventSession("Azmon-Trace-Session", null)
     ping.Ping()
     let processForaBit = async {
                             let proc = run azmon (sprintf "--source=%s" ping.Name)
