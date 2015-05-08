@@ -1,6 +1,5 @@
 ﻿module ConsoleTests
 
-open Microsoft.Diagnostics.Tracing.Session
 open NUnit.Framework
 open System.Diagnostics
 open System.IO
@@ -45,9 +44,6 @@ type PingEventSource() =
     [<Event(2000)>]
     member __.Ping() =
         __.WriteEvent(2000)
-    [<Event(2001)>]
-    member __.Pong() =
-        __.WriteEvent(2001)
 
 // An EventSource _really really_ wants to be a Singleton.
 let ping = new PingEventSource()
@@ -92,10 +88,28 @@ let ``Run with no args shows usage`` () =
     Assert.AreEqual(0, exitCode)
 
 [<Test>]
-// This test also, quietly, demonstrates that you can end monitoring
-// by giving the process a ^C on stdin.
+let ``Closes gracefully on receipt of a ^C``() =
+    let processForaBit = async {
+                            let proc = run azmon (sprintf "--source=%s" ping.Name)
+                            try
+                                match proc with
+                                | Some p ->
+                                    p.StandardInput.WriteLine("\x3")
+                                    return 0
+                                | None -> return 1
+                            finally
+                                match proc with
+                                | Some p -> p.Kill()
+                                | None -> ()
+                         }
+    let result = processForaBit |> Async.CancelAfter 2000 |> Async.RunSynchronously
+    match result with
+    | Some _ -> ()
+    | None -> Assert.Fail("Process didn't quit")
+
+[<Test>]
 let ``Can log events out-of-process``() =
-    // This will ensure we have at least one interesting event in the session
+    // This will ensure we have at least one interesting event.
     ping.Ping()
     let processForaBit = async {
                             let proc = run azmon (sprintf "--source=%s" ping.Name)

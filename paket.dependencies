@@ -5,10 +5,18 @@ nuget FAKE
 nuget FsPickler
 nuget FSharp.Formatting 2.8.0
 nuget FSharpVSPowerTools.Core 1.7.0
+nuget Microsoft.AspNet.SignalR.Client
+nuget Microsoft.AspNet.SignalR.Core
+nuget Microsoft.AspNet.SignalR.Owin
+nuget Microsoft.Owin.Host.HttpListener
+nuget Microsoft.Owin.Hosting
+nuget Nancy
+nuget Nancy.Hosting.Self
+nuget Nancy.Owin
 nuget NUnit
 nuget NUnit.Runners
 nuget Microsoft.Diagnostics.Tracing.TraceEvent
+nuget Owin
 nuget Rx-Main
 nuget SourceLink.Fake
-nuget Suave
 nuget UnionArgParser
