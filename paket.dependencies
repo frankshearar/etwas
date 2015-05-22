@@ -20,3 +20,5 @@ nuget Owin
 nuget Rx-Main
 nuget SourceLink.Fake
 nuget UnionArgParser
+
+github fsharp/FAKE modules/Octokit/Octokit.fsx
