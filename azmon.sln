@@ -1,6 +1,7 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30723.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{63297B98-5CED-492C-A5B7-A5B4F73CF142}"
 	ProjectSection(SolutionItems) = preProject
 		paket.dependencies = paket.dependencies
@@ -34,6 +35,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{ED8079DD
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "azmon.Tests", "tests\azmon.Tests\azmon.Tests.fsproj", "{73F1DB84-7BDA-49CE-8CB6-66A7101B671C}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "azmon.exe.Tests", "tests\azmon.exe.Tests\azmon.exe.Tests.fsproj", "{E0EE70E7-8986-4865-8937-E1B0766E95D3}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "azmon.Lib", "src\azmon.Lib\azmon.Lib.fsproj", "{586BEC3A-51C2-4E91-A148-73FDC6AEB9D6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,6 +53,14 @@ Global
 		{73F1DB84-7BDA-49CE-8CB6-66A7101B671C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{73F1DB84-7BDA-49CE-8CB6-66A7101B671C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{73F1DB84-7BDA-49CE-8CB6-66A7101B671C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E0EE70E7-8986-4865-8937-E1B0766E95D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0EE70E7-8986-4865-8937-E1B0766E95D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0EE70E7-8986-4865-8937-E1B0766E95D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0EE70E7-8986-4865-8937-E1B0766E95D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{586BEC3A-51C2-4E91-A148-73FDC6AEB9D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{586BEC3A-51C2-4E91-A148-73FDC6AEB9D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{586BEC3A-51C2-4E91-A148-73FDC6AEB9D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{586BEC3A-51C2-4E91-A148-73FDC6AEB9D6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -56,5 +69,6 @@ Global
 		{83F16175-43B1-4C90-A1EE-8E351C33435D} = {A6A6AF7D-D6E3-442D-9B1E-58CC91879BE1}
 		{8E6D5255-776D-4B61-85F9-73C37AA1FB9A} = {A6A6AF7D-D6E3-442D-9B1E-58CC91879BE1}
 		{73F1DB84-7BDA-49CE-8CB6-66A7101B671C} = {ED8079DD-2B06-4030-9F0F-DC548F98E1C4}
+		{E0EE70E7-8986-4865-8937-E1B0766E95D3} = {ED8079DD-2B06-4030-9F0F-DC548F98E1C4}
 	EndGlobalSection
 EndGlobal

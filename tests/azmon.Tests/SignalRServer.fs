@@ -1,13 +1,14 @@
-﻿module SignalRServer
+﻿// A very simple test fixture that simply collects events it sees in a list ref.
+module SignalRServer
 
 open Owin
 open Microsoft.AspNet.SignalR
 open Microsoft.AspNet.SignalR.Hubs
 open Microsoft.Owin
 open Nancy
-open Nancy.Owin
+open System.Reactive.Subjects
 
-let observedEvents: string list ref = ref []
+let observedEvents = new Subject<string>()
 
 type Startup() =
     member __.Configuration(app: IAppBuilder) = app.MapSignalR().UseNancy() |> ignore
@@ -21,6 +22,6 @@ type Bootstrapper() =
 [<HubName("event")>]
 type EventHub() =
     inherit Hub()
-    member x.event(event: string) =
-        observedEvents := event :: (!observedEvents)
+    member __.event(event: string) =
+        observedEvents.OnNext(event)
         box "pong"

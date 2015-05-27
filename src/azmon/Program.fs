@@ -7,17 +7,27 @@ open System.Threading
 type Arguments =
     | [<Mandatory>] [<EqualsAssignment>] Source of string
     | [<EqualsAssignment>] Sink of string
-    | Stop
+    |  Stop
 with
     interface IArgParserTemplate with
         member s.Usage =
             match s with
-                | Source _ -> "Publish events from a named event source"
-                | Sink _ -> "Only support HTTP URLs at the moment. No sources means logging to stdout"
-                | Stop -> "Stop listening to events (affects ALL running azmon processes)"
+                | Source _ -> "Publish events from a named ETW event source."
+                | Sink _ -> "Only support HTTP URLs at the moment. No sources means logging to stdout."
+                | Stop -> "Stop listening to events (affects ALL running azmon processes). If present, other parameters are ignored."
 
 let parser = UnionArgParser.Create<Arguments>()
 let usage = parser.Usage()
+
+let registerExitOnCtrlC (canceller: CancellationTokenSource) session =
+    Console.CancelKeyPress
+    |> Observable.subscribe (fun _ ->
+        // Like tears in rain... time to die.
+        // Because it's a clean shutdown, we close the trace
+        // session.
+        Monitor.stop session |> ignore
+        canceller.Cancel())
+    |> ignore
 
 [<EntryPoint>]
 let main argv =
@@ -28,29 +38,29 @@ let main argv =
         else
             let args = parser.Parse argv
 
-            let canceller = new CancellationTokenSource()
-            Console.CancelKeyPress
-            |> Observable.subscribe (fun _ ->
-                // Like tears in rain... time to die.
-                // Because it's a clean shutdown, we close the trace
-                // session.
-                Monitor.stop() |> ignore
-                canceller.Cancel()) |> ignore
+            if args.Contains <@ Stop @> then
+                Monitor.stopSessionByName "Azmon-Trace-Session"
+                0
+            else
+                let canceller = new CancellationTokenSource()
 
-            let runUntilCancelled = async {
-                            Monitor.start    (args.GetResults <@ Source @>)
-                            |> Publish.start (args.GetResults <@ Sink @>)
+                let runUntilCancelled = async {
+                                use monitoring = Monitor.start "Azmon-Trace-Session" (args.GetResults <@ Source @>)
+                                registerExitOnCtrlC canceller monitoring
 
-                            while true do
-                                do! Async.Sleep(1000)
+                                use publishing = monitoring.Subject
+                                                 |> Publish.start (args.GetResults <@ Sink @>)
 
-                            // Do not put any code here. It's on the far
-                            // side of an infinite loop, so you'll be
-                            // waiting a while for it to execute!
+                                while true do
+                                    do! Async.Sleep(1000)
 
-                            return 0
-                       }
-            Async.RunSynchronously(runUntilCancelled, 10000, canceller.Token)
+                                // Do not put any code here. It's on the far
+                                // side of an infinite loop, so you'll be
+                                // waiting a while for it to execute!
+
+                                return 0
+                           }
+                Async.RunSynchronously(runUntilCancelled, 10000, canceller.Token)
     with
     | :? System.ArgumentException as e ->
         printfn "%s" usage
