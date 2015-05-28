@@ -167,6 +167,9 @@ packages/
 # Generated documentation folder
 docs/output/
 
+# Generated files
+AssemblyInfo.fs
+
 # Temp folder used for publishing docs
 temp/
 
