@@ -39,13 +39,13 @@ let main argv =
             let args = parser.Parse argv
 
             if args.Contains <@ Stop @> then
-                Monitor.stopSessionByName "Azmon-Trace-Session"
+                Monitor.stopSessionByName "Azmon-Trace-Session" |> ignore
                 0
             else
                 let canceller = new CancellationTokenSource()
 
                 let runUntilCancelled = async {
-                                use monitoring = Monitor.start "Azmon-Trace-Session" (args.GetResults <@ Source @>)
+                                let monitoring = Monitor.start "Azmon-Trace-Session" (args.GetResults <@ Source @>)
                                 registerExitOnCtrlC canceller monitoring
 
                                 use publishing = monitoring.Subject
