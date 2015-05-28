@@ -49,7 +49,7 @@ let private resolveSink (name: string) session =
 // Return a PublishSession that has subscribed a callback to each
 // (recognised) name in names.
 let start names (subject: IObservable<TraceEvent>) =
-    printfn "Started"
+    printfn "Publishing started"
     let keys map =
         map
         |> Map.toList
@@ -64,4 +64,5 @@ let start names (subject: IObservable<TraceEvent>) =
     {session with Observers = (List.append httpObservers otherObservers)}
 
 let stop (session: Session) =
+    printfn "Publishing stopped"
     (session :> IDisposable).Dispose()
