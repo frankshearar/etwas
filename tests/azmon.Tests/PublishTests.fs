@@ -1,6 +1,8 @@
 ﻿module PublishTests
 
 open AsyncExtensions
+open Microsoft.AspNet.SignalR.Client
+open Microsoft.Diagnostics.Tracing
 open Microsoft.Owin.Hosting
 open NUnit.Framework
 open System
@@ -36,22 +38,37 @@ let getServer() =
             | :? System.Reflection.TargetInvocationException -> () // No, really. It contains a System.Net.HttpListenerException
         {Server = server; Uri = uri})
 
-//[<Test>]
-//let ``http publisher publishes``() =
-//    use server = getServer()
-//    let spotted = new TaskCompletionSource<bool>(false)
-//    use events = Observable.subscribe (fun _ -> spotted.TrySetResult(true) |> ignore) SignalRServer.observedEvents
-//    use monitoring = Monitor.start (uniqueName()) [Ping.PingEventSource.GetName(typeof<Ping.PingEventSource>)]
-//    use registeredHttpSink = Publish.start [server.Uri] monitoring.Subject
-//    async {
-//        Ping.ping.Ping()
-//        do! spotted.Task |> awaitTask
-//    }
-//    |> Async.CancelAfterWithCleanup 2000 (fun () -> spotted.TrySetResult(false) |> ignore)
-//    |> Async.RunSynchronously
-//    |> ignore
-//    Assert.That(spotted.Task.IsCompleted)
-//    Assert.That(spotted.Task.Result)
+type ThunkDelegate = delegate of unit -> unit
+
+type BlankTraceEvent() =
+    inherit TraceEvent(0, 0, "Fake task", Guid.Empty, 0, "", Guid.Empty, "")
+    static member private Empty() = ()
+    override x.PayloadNames with get() = [|"fake"|]
+    override x.PayloadValue(index) = "fake" :> obj
+    override x.Target
+        with get() = new ThunkDelegate(BlankTraceEvent.Empty) :> Delegate
+        and set(_) = ()
+
+[<Test>]
+let ``http publisher publishes``() =
+    use server = getServer()
+    let spotted = new TaskCompletionSource<bool>(false)
+    use events = Observable.subscribe (fun _ -> spotted.TrySetResult(true) |> ignore) SignalRServer.observedEvents
+    use monitoring = Monitor.start (uniqueName()) [Ping.PingEventSource.GetName(typeof<Ping.PingEventSource>)]
+    use connection = new HubConnection(server.Uri)
+    let hub = connection.CreateHubProxy("event")
+    let registeredHttpSink = Publish.http hub
+    async {
+        do! connection.Start() |> awaitTask
+        registeredHttpSink (new BlankTraceEvent())
+
+        do! spotted.Task |> awaitTask
+    }
+    |> Async.CancelAfterWithCleanup 2000 (fun () -> spotted.TrySetResult(false) |> ignore)
+    |> Async.RunSynchronously
+    |> ignore
+    Assert.That(spotted.Task.IsCompleted)
+    Assert.That(spotted.Task.Result)
 
 [<Test>]
 let ``Publish.start [] logs to stdout``() =
@@ -68,20 +85,20 @@ let ``Publish.start [] logs to stdout``() =
 //let ``Publish.stop disconnects HTTP sinks``() =
 //    Assert.Fail()
 
-//open Microsoft.AspNet.SignalR.Client
-//[<Test>]
-//let ``SignalR server works``() =
-//    use server = getServer()
-//    let spotted = new TaskCompletionSource<bool>(false)
-//    use events = Observable.subscribe (fun _ -> spotted.TrySetResult(true) |> ignore) SignalRServer.observedEvents
-//    use connection = new HubConnection(server.Uri)
-//    let hub = connection.CreateHubProxy("event")
-//    async {
-//        do! connection.Start() |> awaitTask
-//        do! hub.Invoke("event", "ping") |> awaitTask
-//        do! spotted.Task |> awaitTask
-//    }
-//    |> Async.CancelAfterWithCleanup 5000  (fun () -> spotted.TrySetResult(false) |> ignore)
-//    |> Async.RunSynchronously
-//    |> ignore
-//    Assert.That(spotted.Task.Result)
+open Microsoft.AspNet.SignalR.Client
+[<Test>]
+let ``SignalR server works``() =
+    use server = getServer()
+    let spotted = new TaskCompletionSource<bool>(false)
+    use events = Observable.subscribe (fun _ -> spotted.TrySetResult(true) |> ignore) SignalRServer.observedEvents
+    use connection = new HubConnection(server.Uri)
+    let hub = connection.CreateHubProxy("event")
+    async {
+        do! connection.Start() |> awaitTask
+        do! hub.Invoke("event", "ping") |> awaitTask
+        do! spotted.Task |> awaitTask
+    }
+    |> Async.CancelAfterWithCleanup 5000  (fun () -> spotted.TrySetResult(false) |> ignore)
+    |> Async.RunSynchronously
+    |> ignore
+    Assert.That(spotted.Task.Result)

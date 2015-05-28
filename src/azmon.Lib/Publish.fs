@@ -22,26 +22,25 @@ let newSession = {Sinks = Map.empty; HttpSinks = List.empty; ToStdout = false; O
 let configuration = function
     | {Sinks = sinks} -> sinks |> Map.toList |> List.map fst
 
-let private httpListener url =
+let http (hub: IHubProxy) =
+    fun (evt: TraceEvent) ->
+        doItNow(hub.Invoke("event", evt.EventName))
+
+let stdout (evt: TraceEvent): unit =
+    printfn "%A" (evt.ToString())
+
+let private connectToSignalr url =
     let connection = new HubConnection(url)
     let hub = connection.CreateHubProxy("event")
     doItNow(connection.Start())
     hub
 
-let private http url session =
-    let newConnection = httpListener url
-    let hub = newConnection
-    let newPub = fun (evt: TraceEvent) ->
-                    doItNow(hub.Invoke("event", evt.EventName))
-    {session with Sinks = Map.add url newPub session.Sinks; HttpSinks = hub :: session.HttpSinks}
-
-let stdout (evt: TraceEvent): unit =
-    printfn "%A" (evt.ToString())
-
 // Map a name to a function that accepts a TraceEvent
 let private resolveSink (name: string) session =
     if name.StartsWith("http") || name.StartsWith("https") then
-        http name session
+        let hub = connectToSignalr name
+        let newPub = http hub
+        {session with Sinks = Map.add name newPub session.Sinks; HttpSinks = hub :: session.HttpSinks}
     else if name.ToLower() = "stdout" then
         {session with ToStdout = true}
     else
