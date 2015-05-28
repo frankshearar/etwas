@@ -72,18 +72,26 @@ let ``http publisher publishes``() =
 
 [<Test>]
 let ``Publish.start [] logs to stdout``() =
-    Assert.That(true, "Covered by the ConsoleTests")
+    use ignored = new Subject<_>()
+    use session = Publish.start [] ignored
+    Assert.That(session.ToStdout)
+    Assert.That(true, "Actual functionality covered by the ConsoleTests")
 
-//[<Test>]
-//let ``HTTP sinks automatically dedupe``() =
-//    use server = getServer()
-//    use ignored = new Subject<_>()
-//    use session = Publish.start [server.Uri; server.Uri] ignored
-//    Assert.AreEqual(1, List.length session.HttpSinks)
+[<Test>]
+let ``HTTP sinks automatically dedupe``() =
+    use server = getServer()
+    use ignored = new Subject<_>()
+    use session = Publish.start [server.Uri; server.Uri] ignored
+    Assert.AreEqual(1, List.length session.HttpSinks)
 
-//[<Test>]
-//let ``Publish.stop disconnects HTTP sinks``() =
-//    Assert.Fail()
+[<Test>]
+let ``Publish.stop disconnects HTTP sinks``() =
+    use server = getServer()
+    use ignored = new Subject<_>()
+    use session = Publish.start [server.Uri] ignored
+    Publish.stop session
+    let e = Assert.Throws<AggregateException>(fun () -> async { do! (List.head session.HttpSinks).Invoke("Ping") |> awaitTask } |> Async.RunSynchronously)
+    Assert.IsInstanceOf<InvalidOperationException>(e.InnerException)
 
 open Microsoft.AspNet.SignalR.Client
 [<Test>]
