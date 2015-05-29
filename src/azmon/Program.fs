@@ -13,8 +13,8 @@ with
         member s.Usage =
             match s with
             | Source _ -> "Publish events from a named ETW event source."
-            | Sink _ -> "Only support HTTP URLs at the moment. No sources means logging to stdout."
-            | Stop -> "Stop listening to events (affects ALL running azmon processes). If present, other parameters are ignored."
+            | Sink _   -> "Only support HTTP URLs at the moment. No sources means logging to stdout."
+            | Stop     -> "Stop listening to events (affects ALL running azmon processes). If present, other parameters are ignored."
 
 let parser = UnionArgParser.Create<Arguments>()
 let usage = parser.Usage()
