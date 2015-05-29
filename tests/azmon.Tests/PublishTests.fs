@@ -89,9 +89,10 @@ let ``Publish.stop disconnects HTTP sinks``() =
     use server = getServer()
     use ignored = new Subject<_>()
     use session = Publish.start [server.Uri] ignored
+    let closed = ref false
+    session.HttpSinks |> List.iter (fun s -> s.add_Closed (fun () -> closed := true))
     Publish.stop session
-    let e = Assert.Throws<AggregateException>(fun () -> async { do! (List.head session.HttpSinks).Invoke("event", "") |> awaitTask } |> Async.RunSynchronously)
-    Assert.IsInstanceOf<InvalidOperationException>(e.InnerException)
+    Assert.That(!closed)
 
 open Microsoft.AspNet.SignalR.Client
 [<Test>]

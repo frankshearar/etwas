@@ -7,15 +7,15 @@ open System
 
 type Session = {
                  Sinks: Map<string,TraceEvent->unit>
-                 HttpSinks: IHubProxy list
+                 HttpSinks: HubConnection list
                  ToStdout: bool
                  Observers: IDisposable list
                }
     with
     interface IDisposable with
         member x.Dispose() =
-            x.Observers
-            |> List.iter (fun d -> d.Dispose())
+            x.HttpSinks |> List.iter (fun s -> s.Dispose())
+            x.Observers |> List.iter (fun d -> d.Dispose())
 
 let newSession = {Sinks = Map.empty; HttpSinks = List.empty; ToStdout = false; Observers = List.empty}
 
@@ -33,14 +33,14 @@ let private connectToSignalr url =
     let connection = new HubConnection(url)
     let hub = connection.CreateHubProxy("event")
     doItNow(connection.Start())
-    hub
+    connection, hub
 
 // Map a name to a function that accepts a TraceEvent
 let private resolveSink (name: string) session =
     if name.StartsWith("http") || name.StartsWith("https") then
-        let hub = connectToSignalr name
+        let connection, hub = connectToSignalr name
         let newPub = http hub
-        {session with Sinks = Map.add name newPub session.Sinks; HttpSinks = hub :: session.HttpSinks}
+        {session with Sinks = Map.add name newPub session.Sinks; HttpSinks = connection :: session.HttpSinks}
     else if name.ToLower() = "stdout" then
         {session with ToStdout = true}
     else
