@@ -39,6 +39,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "azmon.exe.Tests", "tests\az
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "azmon.Lib", "src\azmon.Lib\azmon.Lib.fsproj", "{586BEC3A-51C2-4E91-A148-73FDC6AEB9D6}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "azmons", "src\azmons\azmons.fsproj", "{D3574B9B-7F61-4E06-AB05-E6CE0F4CBEA9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +63,10 @@ Global
 		{586BEC3A-51C2-4E91-A148-73FDC6AEB9D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{586BEC3A-51C2-4E91-A148-73FDC6AEB9D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{586BEC3A-51C2-4E91-A148-73FDC6AEB9D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3574B9B-7F61-4E06-AB05-E6CE0F4CBEA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3574B9B-7F61-4E06-AB05-E6CE0F4CBEA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3574B9B-7F61-4E06-AB05-E6CE0F4CBEA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3574B9B-7F61-4E06-AB05-E6CE0F4CBEA9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -61,7 +61,6 @@
     <None Include="App.config" />
     <Compile Include="Ping.fs" />
     <Compile Include="Pong.fs" />
-    <Compile Include="SignalRServer.fs" />
     <Compile Include="MonitorTests.fs" />
     <Compile Include="PublishTests.fs" />
   </ItemGroup>
@@ -133,6 +132,11 @@
     <ProjectReference Include="..\..\src\azmon.Lib\azmon.Lib.fsproj">
       <Name>azmon.Lib</Name>
       <Project>{586bec3a-51c2-4e91-a148-73fdc6aeb9d6}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\azmons\azmons.fsproj">
+      <Name>azmons</Name>
+      <Project>{d3574b9b-7f61-4e06-ab05-e6ce0f4cbea9}</Project>
       <Private>True</Private>
     </ProjectReference>
   </ItemGroup>
