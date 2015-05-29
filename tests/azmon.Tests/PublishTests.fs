@@ -96,15 +96,12 @@ let ``Publish.stop disconnects HTTP sinks``() =
 open Microsoft.AspNet.SignalR.Client
 [<Test>]
 let ``SignalR server works``() =
-    let event = new SignalRServer.JsonTraceEvent(0, 0, "Fake task", Guid.Empty, 0, "", Guid.Empty, "", [|"name";"age"|], [|"Frank";40|])
     use server = getServer()
     let spotted = new TaskCompletionSource<bool>(false)
     use events = Observable.subscribe (fun _ -> spotted.TrySetResult(true) |> ignore) SignalRServer.observedEvents
     use connection = new HubConnection(server.Uri)
     let hub = connection.CreateHubProxy("event")
-    let names = event.PayloadNames
-    let values = event.PayloadNames |> Array.map (fun name -> event.PayloadByName name)
-    let s = "ret"
+    let s = "serialised event"
     async {
         do! connection.Start() |> awaitTask
         do! hub.Invoke("event", s) |> awaitTask
