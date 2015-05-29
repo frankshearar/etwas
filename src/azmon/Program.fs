@@ -5,9 +5,9 @@ open System
 open System.Threading
 
 type Arguments =
-    | [<Mandatory>] [<EqualsAssignment>] Source of string
-    | [<EqualsAssignment>] Sink of string
-    |  Stop
+    | [<Mandatory>] Source of string
+    | Sink of string
+    | Stop
 with
     interface IArgParserTemplate with
         member s.Usage =
