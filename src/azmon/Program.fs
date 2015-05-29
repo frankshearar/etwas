@@ -23,8 +23,7 @@ let registerExitOnCtrlC (canceller: CancellationTokenSource) session =
     Console.CancelKeyPress
     |> Observable.subscribe (fun _ ->
         // Like tears in rain... time to die.
-        // Because it's a clean shutdown, we close the trace
-        // session.
+        // We _do not_ close the trace session: call azmon --stop to do that.
         Monitor.stop session |> ignore
         canceller.Cancel())
     |> ignore
