@@ -59,7 +59,7 @@ let ``Run with no args shows usage`` () =
 [<Test>]
 let ``Closes gracefully on receipt of a ^C``() =
     let processForaBit = async {
-                            let proc = run azmon (sprintf "--source=%s" Ping.ping.Name)
+                            let proc = run azmon (sprintf "--source %s" Ping.ping.Name)
                             try
                                 match proc with
                                 | Right p ->
@@ -81,7 +81,7 @@ let ``Can log events out-of-process``() =
     // This will ensure we have at least one interesting event.
     Ping.ping.Ping()
     let processForaBit = async {
-                            let proc = run azmon (sprintf "--source=%s" Ping.ping.Name)
+                            let proc = run azmon (sprintf "--source %s" Ping.ping.Name)
                             match proc with
                             | Right p ->
                                 let output = new StringBuilder()
