@@ -2,9 +2,11 @@
 
 open AsyncExtensions
 open NUnit.Framework
+open PortUtilities
 open System
 open System.Diagnostics
 open System.IO
+open System.Net
 open System.Text
 
 type Either<'a> =
@@ -46,59 +48,109 @@ let azmon =
     let solnDir = cwd.Parent.Parent.Parent.Parent.FullName
     Path.Combine(solnDir, @"src\azmon\bin\Debug\azmon.exe")
 
-[<TearDown>]
-let ``Kill OS trace session``() =
-    sh azmon "--stop" |> ignore
+let azmons =
+    let cwd = new DirectoryInfo(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory))
+    let solnDir = cwd.Parent.Parent.Parent.Parent.FullName
+    Path.Combine(solnDir, @"src\azmons\bin\Debug\azmons.exe")
 
-[<Test>]
-let ``Run with no args shows usage`` () =
-    let exitCode, stdout = sh azmon ""
-    Assert.That(stdout.Contains("--source"), "No usage displayed in:\n" + stdout)
-    Assert.AreEqual(0, exitCode)
+[<TestFixture>]
+type Azmon() =
+    [<TearDown>]
+    member x.``Kill OS trace session``() =
+        sh azmon "--stop" |> ignore
 
-[<Test>]
-let ``Closes gracefully on receipt of a ^C``() =
-    let processForaBit = async {
-                            let proc = run azmon (sprintf "--source %s" Ping.ping.Name)
-                            try
+    [<Test>]
+    member x.``shows usage when run with no args`` () =
+        let exitCode, stdout = sh azmon ""
+        Assert.That(stdout.Contains("--source"), "No usage displayed in:\n" + stdout)
+        Assert.AreEqual(0, exitCode)
+
+    [<Test>]
+    member x.``closes gracefully on receipt of a ^C``() =
+        let processForaBit = async {
+                                let proc = run azmon (sprintf "--source %s" Ping.ping.Name)
+                                try
+                                    match proc with
+                                    | Right p ->
+                                        p.StandardInput.WriteLine("\x3")
+                                        return 0
+                                    | Left _ -> return 1
+                                finally
+                                    match proc with
+                                    | Right p -> p.Kill()
+                                    | Left _ -> ()
+                             }
+        let result = processForaBit |> Async.CancelAfter 2000 |> Async.RunSynchronously
+        match result with
+        | Some _ -> ()
+        | None -> Assert.Fail("Process didn't quit")
+
+    [<Test>]
+    member x.``can log events out-of-process``() =
+        // This will ensure we have at least one interesting event.
+        Ping.ping.Ping()
+        let processForaBit = async {
+                                let proc = run azmon (sprintf "--source %s" Ping.ping.Name)
                                 match proc with
                                 | Right p ->
-                                    p.StandardInput.WriteLine("\x3")
-                                    return 0
-                                | Left _ -> return 1
-                            finally
-                                match proc with
-                                | Right p -> p.Kill()
-                                | Left _ -> ()
-                         }
-    let result = processForaBit |> Async.CancelAfter 2000 |> Async.RunSynchronously
-    match result with
-    | Some _ -> ()
-    | None -> Assert.Fail("Process didn't quit")
+                                    let output = new StringBuilder()
+                                    let error = new StringBuilder()
+                                    p.OutputDataReceived.Add(fun args -> output.Append(args.Data) |> ignore)
+                                    p.ErrorDataReceived.Add(fun args -> error.Append(args.Data) |> ignore)
+                                    p.BeginErrorReadLine()
+                                    p.BeginOutputReadLine()
+                                    do! Async.Sleep 5000 // Fairly arbitrary pause; seems like out-of-process ETW logging has a latency of ~2 seconds.
+                                    p.Kill()
+                                    return output.Append(error.ToString()).ToString()
+                                | Left e -> return sprintf "Process didn't run? (%s)" e
+                             }
+        let stdout = processForaBit |> Async.CancelAfter 6000 |> Async.RunSynchronously
+        match stdout with
+        | Some s ->
+            Assert.IsNotEmpty(s)
+            // Not an actual event, this shows we see the advertised metadata of the event source.
+            Assert.That(s.Contains(@"ProviderName=""Ping"""), (sprintf "Ping event source not found in stdout: %s" s))
+        | None -> Assert.Fail("Something went wrong")
 
-[<Test>]
-let ``Can log events out-of-process``() =
-    // This will ensure we have at least one interesting event.
-    Ping.ping.Ping()
-    let processForaBit = async {
-                            let proc = run azmon (sprintf "--source %s" Ping.ping.Name)
-                            match proc with
-                            | Right p ->
-                                let output = new StringBuilder()
-                                let error = new StringBuilder()
-                                p.OutputDataReceived.Add(fun args -> output.Append(args.Data) |> ignore)
-                                p.ErrorDataReceived.Add(fun args -> error.Append(args.Data) |> ignore)
-                                p.BeginErrorReadLine()
-                                p.BeginOutputReadLine()
-                                do! Async.Sleep 5000 // Fairly arbitrary pause; seems like out-of-process ETW logging has a latency of ~2 seconds.
-                                p.Kill()
-                                return output.Append(error.ToString()).ToString()
-                            | Left e -> return sprintf "Process didn't run? (%s)" e
-                         }
-    let stdout = processForaBit |> Async.CancelAfter 6000 |> Async.RunSynchronously
-    match stdout with
-    | Some s ->
-        Assert.IsNotEmpty(s)
-        // Not an actual event, this shows we see the advertised metadata of the event source.
-        Assert.That(s.Contains(@"ProviderName=""Ping"""), (sprintf "Ping event source not found in stdout: %s" s))
-    | None -> Assert.Fail("Something went wrong")
+[<TestFixture>]
+type Azmons() =
+    [<Test>]
+    member x.``closes gracefully on receipt of a ^C``() =
+        let processForaBit = async {
+                                let proc = run azmons "--port 8080" // TODO: Remove hard-coded port
+                                try
+                                    match proc with
+                                    | Right p ->
+                                        p.StandardInput.WriteLine("\x3")
+                                        return 0
+                                    | Left _ -> return 1
+                                finally
+                                    match proc with
+                                    | Right p -> p.Kill()
+                                    | Left _ -> ()
+                                }
+        let result = processForaBit |> Async.CancelAfter 2000 |> Async.RunSynchronously
+        match result with
+        | Some _ -> ()
+        | None -> Assert.Fail("Process didn't quit")
+
+    [<Test>]
+    member x.``starts listening on specified port``() =
+        let proc = run azmons "--port 8081"
+        try
+            AssertPort.Used (new IPEndPoint(IPAddress.Any, 8081))
+        finally
+        match proc with
+        | Right p -> p.Kill()
+        | Left _ -> ()
+
+    [<Test>]
+    member x.``shows usage when asked``() =
+        let proc = run azmons "--help"
+        match proc with
+        | Right p ->
+            let s = p.StandardOutput.ReadToEnd()
+            Assert.That(s, Contains.Substring("--help"))
+            Assert.That(s, Contains.Substring("--port"))
+            Assert.AreEqual(0, p.ExitCode)
+        | Left e -> Assert.Fail(sprintf "Failed to start azmons: %s" (e.ToString()))

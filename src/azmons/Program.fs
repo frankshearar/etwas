@@ -26,19 +26,23 @@ let registerExitOnCtrlC (canceller: CancellationTokenSource) =
 [<EntryPoint>]
 let main argv =
     try
-        let args = parser.Parse argv
-        let port = args.GetResult (<@ Port @>, defaultValue = 8080)
-        let uri = sprintf "http://localhost:%d/" port
+        let args = parser.Parse (argv, raiseOnUsage = false)
+        if args.IsUsageRequested then
+            printfn "%s" usage
+            0
+        else
+            let port = args.GetResult (<@ Port @>, defaultValue = 8080)
+            let uri = sprintf "http://localhost:%d/" port // Despite the FQDN, this will listen on all interfaces.
 
-        let canceller = new CancellationTokenSource()
-        let runUntilCancelled = async {
-                let server = WebApp.Start<SignalRServer.Startup>(uri)
-                while true do
-                    do! Async.Sleep 1000
+            let canceller = new CancellationTokenSource()
+            let runUntilCancelled = async {
+                    let server = WebApp.Start<SignalRServer.Startup>(uri)
+                    while true do
+                        do! Async.Sleep 1000
 
-                return 0
-            }
-        Async.RunSynchronously(runUntilCancelled, 10000, canceller.Token)
+                    return 0
+                }
+            Async.RunSynchronously(runUntilCancelled, 10000, canceller.Token)
 
     with
     | :? System.ArgumentException as e ->
