@@ -138,7 +138,16 @@ type Azmons() =
     member x.``starts listening on specified port``() =
         let proc = run azmons "--port 8081"
         try
-            AssertPort.Used (new IPEndPoint(IPAddress.Any, 8081))
+            System.Threading.Thread.Sleep(TimeSpan.FromSeconds 1.0) // It takes as long as this to actually spin up the process and register the socket!
+            match run "netstat" "-anp TCP" with
+            | Right p ->
+                let output = p.StandardOutput.ReadToEnd()
+                output.Split([|"\r\n"|], StringSplitOptions.RemoveEmptyEntries)
+                |> Array.filter (fun s -> s.Contains "LISTENING")
+                |> Array.filter (fun s -> s.Contains "8081")
+                |> fun s -> s, "Nothing listening"
+                |> Assert.IsNotEmpty
+            | Left e -> Assert.Fail(sprintf "Couldn't run netstat: %s" (e.ToString()))
         finally
         match proc with
         | Right p -> p.Kill()
