@@ -5,15 +5,15 @@ open Microsoft.Diagnostics.Tracing.Session
 open System.Reactive.Subjects
 
 // Problems:
-//* Tests are SUPER flaky
+//* Tests are flaky
 //* Need to separate session creation from session listening: privilege separation
 
 type Session = {
-                Name: string
+                Name: string                 // User-supplied, unique, name.
                 Trace: TraceEventSession
                 Source: ETWTraceEventSource
-                Subject: Subject<TraceEvent>
-                Clr: bool
+                Subject: Subject<TraceEvent> // Subscribe to this to receive all configured events.
+                Clr: bool                    // Logs CLR events.
                }
     with
     interface System.IDisposable with
@@ -72,7 +72,7 @@ let createSession name withClr =
 // This ETW session is shared across all running azmon processes. The Session
 // instance returned will stop sending events when it is Dispose()d.
 let start name (names: string list) =
-    let clr = List.exists (fun x -> x = "clr") names
+    let clr  = List.exists (fun x -> x = "clr") names
     let srcs = List.filter (fun x -> x <> "clr") names
     let sess = createSession name clr
     enableProviders srcs sess
