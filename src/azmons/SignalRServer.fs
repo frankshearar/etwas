@@ -24,4 +24,4 @@ type EventHub() =
     inherit Hub()
     member __.event(xml) =
         observedEvents.OnNext(xml)
-        box "pong"
+        box ""
