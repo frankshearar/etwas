@@ -48,8 +48,9 @@ let ``can start and stop monitoring``() =
     let pingName = Ping.PingEventSource.GetName(typeof<Ping.PingEventSource>)
     let spotted = ref false
     use monitoring = Monitor.start (uniqueName()) [pingName]
+    Assert.False(monitoring.Clr)
     use events = Observable.subscribe (fun _ ->
-                                        spotted := true) monitoring.Subject
+                                           spotted := true) monitoring.Subject
     Ping.ping.Ping()
     System.Threading.Thread.Sleep(3000)
     Assert.That(!spotted)
@@ -59,3 +60,13 @@ let ``can start and stop monitoring``() =
     Ping.ping.Ping()
     System.Threading.Thread.Sleep(3000)
     Assert.False(!spotted)
+
+[<Test>]
+let ``can monitor CLR events``() =
+    let spotted = ref false
+    use monitoring = Monitor.start (uniqueName()) ["clr"]
+    Assert.That(monitoring.Clr)
+    use events = Observable.subscribe (fun _ ->
+                                           spotted := true) monitoring.Subject
+    System.Threading.Thread.Sleep(3000)
+    Assert.That(!spotted)

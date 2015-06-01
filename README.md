@@ -10,7 +10,7 @@ On every machine in your deployment, run `azmon.exe`. On your aggregators (you m
 
     $ azmon.exe
     
-            --source <string>: Publish events from a named ETW event source. May occur multiple times
+            --source <string>: Publish events from a named ETW event source. Allowed: HTTP URIs, 'stdout', 'clr'. May occur multiple times
             --sink <string>: Only support HTTP URLs at the moment, or "stdout". No sources means logging to stdout. May occur multiple times.
             --stop: Stop listening to events (affects ALL running azmon processes). If present, other parameters are ignored.
             --help [-h|/h|/help|/?]: display this list of options.
@@ -22,6 +22,7 @@ On every machine in your deployment, run `azmon.exe`. On your aggregators (you m
 
 ## TODO
 
+* Keep azmon.exe running when azmons.exe quits. (Or, handle server disconnects gracefully.)
 * Remove hardcoded "event" SignalR hub in the client.
 * UI, so you can see events in your browser.
 * "Raw" connection for console your own sinks off the aggregated logging.
