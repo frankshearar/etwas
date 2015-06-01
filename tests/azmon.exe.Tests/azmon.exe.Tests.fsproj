@@ -46,6 +46,7 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Debug.fs" />
     <Compile Include="AssertPort.fs" />
     <Compile Include="AssertPortTests.fs" />
     <Compile Include="ConsoleTests.fs" />
