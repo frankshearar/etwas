@@ -21,12 +21,15 @@ On every machine in your deployment, run `azmon.exe`. On your aggregators (you m
            --help [-h|/h|/help|/?]: display this list of options.
 
 ## TODO
-* UI, so you can see events in your browser
-* "Raw" connection for console your own sinks off the aggregated logging
+
+* Remove hardcoded "event" SignalR hub in the client.
+* UI, so you can see events in your browser.
+* "Raw" connection for console your own sinks off the aggregated logging.
 * Privilege separation, so that setting up the ETW trace session can (must) be done elevated, but the actual monitoring can be unprivileged.
-* Exposing CLR events
-* tracking CPU usage, and other system statuses
+* Exposing CLR events.
+* tracking CPU usage, and other system statuses.
 * tracking _per process_ CPU usage, possibly on an opt-in basis.
+* Make the tests more robust, especially in NCrunch.
 
 ## Technical details
 
