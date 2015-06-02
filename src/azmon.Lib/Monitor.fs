@@ -23,9 +23,8 @@ type Session = {
                 // Don't Dispose() Trace, because that should live on until we call Monitor.stop.
 
 let (|Null|Value|) (x: System.Nullable<_>) =
-    // Apparently GetValueOrDefault is faster, and the Unchecked.defaultof<> cannot
-    // be reached.
-    if x.HasValue then Value (x.GetValueOrDefault(Unchecked.defaultof<_>)) else Null
+    // GetValueOrDefault is faster than Value, and we've already checked HasValue.
+    if x.HasValue then Value (x.GetValueOrDefault()) else Null
 
 // Enabling providers requires elevated permissions
 let private enableProviders (names: string list) (session: Session) =
