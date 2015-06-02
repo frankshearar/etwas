@@ -5,7 +5,7 @@ open System
 open System.Threading
 
 type Arguments =
-    | [<Mandatory>] Source of string
+    | Source of string
     | Sink of string
     | Stop
 with

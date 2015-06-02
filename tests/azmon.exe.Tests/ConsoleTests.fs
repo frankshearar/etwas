@@ -111,6 +111,11 @@ type Azmon() =
             // Not an actual event, this shows we see the advertised metadata of the event source.
             Assert.That(s.Contains(@"ProviderName=""Ping"""), (sprintf "Ping event source not found in stdout: %s" s))
         | None -> Assert.Fail("Something went wrong")
+    [<Test>]
+    member x.``stops session gracefully``() =
+        // Actually this test just shows that we don't barf when asked to --stop.
+        let exitCode, _ = sh azmon "--stop"
+        Assert.AreEqual(0, exitCode)
 
 [<TestFixture>]
 type Azmons() =
