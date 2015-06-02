@@ -34,7 +34,9 @@ let private enableProviders (names: string list) (session: Session) =
 //    | Null -> ()
     names
     |> List.iter (fun s -> printfn "Enabling %s" s
-                           session.Trace.EnableProvider s |> ignore
+                           match s with
+                           | "clr" ->  session.Trace.EnableProvider "e13c0d23-ccbc-4e12-931b-d9cc2eee27e4" |> ignore // TODO: properly confugrure this!
+                           | _     -> session.Trace.EnableProvider s |> ignore
                            printfn "Enabled %s" s)
 
 let private startSession (source: ETWTraceEventSource) =
@@ -59,7 +61,8 @@ let createSession name withClr =
     let source = new ETWTraceEventSource(name, TraceEventSourceType.Session)
     source.Dynamic.add_All (fun evt -> subject.OnNext evt)
     if withClr then
-        source.Clr.add_All (fun evt -> subject.OnNext evt)
+        source.Clr.add_All (fun evt ->
+                                subject.OnNext evt)
     {Name = name; Clr = withClr; Trace = sess; Source = source; Subject = subject}
 
 // The entry point to the monitoring.
@@ -72,9 +75,8 @@ let createSession name withClr =
 // instance returned will stop sending events when it is Dispose()d.
 let start name (names: string list) =
     let clr  = List.exists (fun x -> x = "clr") names
-    let srcs = List.filter (fun x -> x <> "clr") names
     let sess = createSession name clr
-    enableProviders srcs sess
+    enableProviders names sess
     startSession sess.Source
     sess
 
