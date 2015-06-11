@@ -1,0 +1,33 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>azmon</title>
+</head>
+<body>
+    <p>Aggregated logs for 127.0.0.1 (TODO: Put in deployment identifier here)</p>
+    <div class="container">
+        <ul id="logs"></ul>
+    </div>
+    <script src="scripts/jquery-2.1.1.min.js"></script>
+    <script src="scripts/jquery.signalR-2.1.0.min.js"></script>
+    <script src="/signalr/js"></script>
+    <script type="text/javascript">
+        $(function() {
+            $.connection.onReceived = function(s) {
+                console.log("Received " + s);
+            };
+            var display = $.connection.display;
+            display.onReceived = function(s) {
+                console.log("Received (display) " + s);
+            };
+            display.client.event = function(s) {
+                console.log("Client received " + s);
+            };
+            $.connection.hub.start().done(function() {
+                console.log("Connected");
+            });
+        });
+    </script>
+</body>
+</html>

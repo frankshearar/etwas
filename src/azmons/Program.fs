@@ -26,6 +26,13 @@ let registerExitOnCtrlC (canceller: CancellationTokenSource) =
 [<EntryPoint>]
 let main argv =
     try
+        // TODO: Find port number by checking (in order)
+        // * command line argument
+        // * PORT environment variable (Because of the below, move this as first choice?)
+        // * App.config.
+        // * default to 8080
+        // UnionArgParsre will do command line then App.config. Is that good enough? Heroku-like environments
+        // (IIRC at least) want ENV["PORT"]
         let args = parser.Parse (argv, raiseOnUsage = false)
         if args.IsUsageRequested then
             printfn "%s" usage
@@ -36,7 +43,7 @@ let main argv =
 
             let canceller = new CancellationTokenSource()
             let runUntilCancelled = async {
-                    let server = WebApp.Start<SignalRServer.Startup>(uri)
+                    let server = WebApp.Start<Bootstrapper.Startup>(uri)
                     while true do
                         do! Async.Sleep 1000
 

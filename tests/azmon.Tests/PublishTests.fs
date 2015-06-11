@@ -32,7 +32,7 @@ let getServer() =
             port <- (nextPort.Next 10000) + 10000 // Random port between 10k and 20k
             uri <- sprintf "http://localhost:%d/" port
             try
-                server <- WebApp.Start<SignalRServer.Startup>(uri)
+                server <- WebApp.Start<Bootstrapper.Startup>(uri)
                 openPort <- true
             with
             | :? System.Reflection.TargetInvocationException -> () // No, really. It contains a System.Net.HttpListenerException

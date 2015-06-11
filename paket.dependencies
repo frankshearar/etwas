@@ -4,6 +4,7 @@ nuget EnterpriseLibrary.SemanticLogging
 nuget FAKE
 nuget FsPickler
 nuget FSharp.Formatting 2.8.0
+nuget FSharp.Interop.Dynamic 3.0.0
 nuget FSharpVSPowerTools.Core 1.7.0
 nuget Microsoft.AspNet.SignalR.Client
 nuget Microsoft.AspNet.SignalR.Core

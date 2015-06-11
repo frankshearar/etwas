@@ -86,6 +86,15 @@ type Azmon() =
         | None -> Assert.Fail("Process didn't quit")
 
     [<Test>]
+     member x.``supports HTTP sinks``() =
+         let proc = run azmons "--source ping --sink http://localhost:8080/"
+         match proc with
+         | Right p ->
+             let s = p.StandardOutput.ReadToEnd()
+             Assert.False(s.Contains "Unhandled Exception")
+         | Left e -> Assert.Fail(sprintf "Failed to start azmons: %s" (e.ToString()))
+
+    [<Test>]
     member x.``can log events out-of-process``() =
         // This will ensure we have at least one interesting event.
         Ping.ping.Ping()
