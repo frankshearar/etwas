@@ -27,19 +27,19 @@ type DisplayHub() =
         x.Groups.Add(x.Context.ConnectionId, "display") |> awaitTask |> ignore
         base.OnConnected()
     override x.OnDisconnected(stopCalled) =
+        printfn "Removing %s from display group" x.Context.ConnectionId
         x.Groups.Remove(x.Context.ConnectionId, "display") |> awaitTask |> ignore
         base.OnDisconnected(stopCalled)
 
 type Publisher(src: IObservable<_>, clients: IHubConnectionContext<_>) as this =
     let events = Observable.subscribe (fun s -> this.Publish s) src |> logit
-    member __.Clients with get() = clients
     member x.Publish s =
         printfn "Publishing! %s" s
         try
-            x.Clients.Group("display")?event(s)
+            clients.Group("display")?event(s)
         with
-        | :? Exception as e ->
-            printfn "Oh noes, got a %s" (e.ToString())
+        | _ as e ->
+            printfn "Exception publishing event: %s" (e.ToString())
     interface IDisposable with
         member x.Dispose() =
             (events :> IDisposable).Dispose()

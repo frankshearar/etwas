@@ -22,12 +22,15 @@ let newSession = {Sinks = Map.empty; HttpSinks = List.empty; ToStdout = false; O
 let configuration = function
     | {Sinks = sinks} -> sinks |> Map.toList |> List.map fst
 
+let private serialize (evt: TraceEvent) =
+    evt.ToString()
+
 let http (hub: IHubProxy) =
     fun (evt: TraceEvent) ->
-        doItNow(hub.Invoke("event", evt.EventName))
+        doItNow(hub.Invoke("event", (serialize evt)))
 
 let stdout (evt: TraceEvent): unit =
-    printfn "%A" (evt.ToString())
+    printfn "%A" (serialize evt)
 
 let private connectToSignalr url =
     let connection = new HubConnection(url)
