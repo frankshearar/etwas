@@ -6,6 +6,7 @@ open Microsoft.AspNet.SignalR
 open Microsoft.AspNet.SignalR.Hubs
 open Nancy
 open System
+open System.Reactive.Subjects
 
 type IndexModule() as x =
     inherit NancyModule()
@@ -24,8 +25,8 @@ type DisplayHub() =
         x.Groups.Remove(x.Context.ConnectionId, "display") |> awaitTask |> ignore
         base.OnDisconnected(stopCalled)
 
-type Publisher(src: IObservable<_>, clients: IHubConnectionContext<_>) as this =
-    let events = Observable.subscribe (fun s -> this.Publish s) src
+type Publisher(src: Subject<string>, clients: IHubConnectionContext<_>) as this =
+    let events = Observable.subscribe this.Publish src
     member __.Publish s =
         try
             clients.Group("display")?event(s)
