@@ -12,13 +12,6 @@ type IndexModule() as x =
     do
      x.Get.["/"] <- fun _ -> box x.View.["index"]
 
-type LoggingDisposable(d: IDisposable) =
-    interface IDisposable with
-        member x.Dispose() =
-            printfn "IT'S DEAD JIM"
-            d.Dispose()
-let logit d = new LoggingDisposable(d)
-
 [<HubName("display")>]
 type DisplayHub() =
     inherit Hub()
@@ -32,14 +25,13 @@ type DisplayHub() =
         base.OnDisconnected(stopCalled)
 
 type Publisher(src: IObservable<_>, clients: IHubConnectionContext<_>) as this =
-    let events = Observable.subscribe (fun s -> this.Publish s) src |> logit
-    member x.Publish s =
-        printfn "Publishing! %s" s
+    let events = Observable.subscribe (fun s -> this.Publish s) src
+    member __.Publish s =
         try
             clients.Group("display")?event(s)
         with
         | _ as e ->
             printfn "Exception publishing event: %s" (e.ToString())
     interface IDisposable with
-        member x.Dispose() =
-            (events :> IDisposable).Dispose()
+        member __.Dispose() =
+            events.Dispose()
