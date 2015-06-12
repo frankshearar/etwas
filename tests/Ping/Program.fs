@@ -1,6 +1,7 @@
 ﻿open Nessos.UnionArgParser
 open System
-open System.Threading;
+open System.Threading
+open System.Reactive.Linq
 
 type Arguments =
     | Interval of int
@@ -19,6 +20,9 @@ let registerExitOnCtrlC (canceller: CancellationTokenSource) =
         canceller.Cancel())
     |> ignore
 
+let printMessagesPerSecond n =
+    printfn "%d msg/s" n
+
 let parser = UnionArgParser.Create<Arguments>()
 let usage = parser.Usage()
 
@@ -36,15 +40,27 @@ let main argv =
 
             let canceller = new CancellationTokenSource()
 
-            let runUntilCancelled = async {
-                registerExitOnCtrlC canceller
+            let msgCount = ref 0L
 
+            let publishMessageRate = async {
                 while true do
-                    do! Async.Sleep(millis)
+                    do! Async.Sleep(1000)
+                    printMessagesPerSecond (Interlocked.Exchange(msgCount, 0L))
+            }
+
+            let publishMessages = async {
+                while true do
+                    Interlocked.Increment(msgCount) |> ignore
+                    if millis > 0 then do! Async.Sleep(millis)
                     Ping.ping.Ping()
             }
+
+            let runUntilCancelled = async {
+                registerExitOnCtrlC canceller
+                let! _ = Async.Parallel [publishMessages ; publishMessageRate]
+                return 0
+            }
             Async.RunSynchronously(runUntilCancelled, 10000, canceller.Token)
-            0
     with
     | :? System.ArgumentException as e ->
         printfn "%s" usage
