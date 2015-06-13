@@ -26,6 +26,7 @@ On every machine in your deployment, run `azmon.exe`. On your aggregators (you m
 * Remove hardcoded "event" SignalR hub in the client.
 * UI, so you can see events in your browser.
 * "Raw" connection for console your own sinks off the aggregated logging.
+* Azure table sink, possibly using SLAB's sink
 * Privilege separation, so that setting up the ETW trace session can (must) be done elevated, but the actual monitoring can be unprivileged.
 * tracking CPU usage, and other system statuses. (Use a statsd-like format? Lower bandwidth requirements than XML events.)
 * tracking _per process_ CPU usage, possibly on an opt-in basis. (Use a statsd-like format? Lower bandwidth requirements than XML events.)

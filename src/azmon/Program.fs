@@ -28,6 +28,9 @@ let registerExitOnCtrlC (canceller: CancellationTokenSource) session =
         canceller.Cancel())
     |> ignore
 
+let printMessagesPerSecond n =
+    printfn "%d\tmsg/s" n
+
 [<EntryPoint>]
 let main argv =
     try
@@ -42,23 +45,32 @@ let main argv =
                 0
             else
                 let canceller = new CancellationTokenSource()
+                let msgCount = ref 0L
+
+                let monitoring = Monitor.start "Azmon-Trace-Session" (args.GetResults <@ Source @>)
+
+                use countEvents = monitoring.Subject
+                                  |> Observable.subscribe (fun _ -> Interlocked.Increment(msgCount) |> ignore)
+
+                let publishMessageRate = async {
+                    while true do
+                        do! Async.Sleep(1000)
+                        printMessagesPerSecond (Interlocked.Exchange(msgCount, 0L))
+                }
+
+                let monitor = async {
+                    use publishing = monitoring.Subject
+                                     |> Publish.start (args.GetResults <@ Sink @>)
+
+                    while true do
+                        do! Async.Sleep(1000)
+                }
 
                 let runUntilCancelled = async {
-                                let monitoring = Monitor.start "Azmon-Trace-Session" (args.GetResults <@ Source @>)
-                                registerExitOnCtrlC canceller monitoring
-
-                                use publishing = monitoring.Subject
-                                                 |> Publish.start (args.GetResults <@ Sink @>)
-
-                                while true do
-                                    do! Async.Sleep(1000)
-
-                                // Do not put any code here. It's on the far
-                                // side of an infinite loop, so you'll be
-                                // waiting a while for it to execute!
-
-                                return 0
-                           }
+                    registerExitOnCtrlC canceller monitoring
+                    let! _ = Async.Parallel [monitor ; publishMessageRate]
+                    return 0
+                }
                 Async.RunSynchronously(runUntilCancelled, 10000, canceller.Token)
     with
     | :? System.ArgumentException as e ->

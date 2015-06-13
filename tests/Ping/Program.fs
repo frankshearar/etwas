@@ -20,7 +20,7 @@ let registerExitOnCtrlC (canceller: CancellationTokenSource) =
     |> ignore
 
 let printMessagesPerSecond n =
-    printfn "%d msg/s" n
+    printfn "%d\tmsg/s" n
 
 let parser = UnionArgParser.Create<Arguments>()
 let usage = parser.Usage()
@@ -52,7 +52,9 @@ let main argv =
             let publishMessages = async {
                 timer.Start()
                 while true do
-                    if eventsPerSecond > 0L then while timer.ElapsedTicks < ticksPerSend do ()
+                    if eventsPerSecond > 0L then
+                        while timer.ElapsedTicks < ticksPerSend do
+                            System.Threading.Thread.Sleep(0)
                     Interlocked.Increment(msgCount) |> ignore
                     Ping.ping.Ping()
                     timer.Restart()
