@@ -37,6 +37,25 @@ Azmon starts an ETW trace session, and whenever it sees events, uses [SignalR](h
 
 In turn the aggregators use SignalR to publish these chunks of XML to your browser, or any other kind of connected client.
 
+## Testing
+
+Azmon also contains a load/smoke test event producer, Ping.exe. If you want to run an end-to-end test to verify azmon's overall operation,
+
+* start azmons.exe
+* start azmon.exe with something like `azmon --source Ping --sink stdout --sink http://localhost:8080/`
+* connect to [http://localhost:8080/](http://localhost:8080/) with your browser
+* start ping.exe
+* You should now see a new Ping event arriving in your browser at about 1 event/s.
+
+Full details on how to control Ping:
+
+    $ Ping.exe --help
+    
+            --rate <int64>: (Estimated) events published per second. Default: 1 event/s
+            --help [-h|/h|/help|/?]: display this list of options.
+
+
+
 ## Maintainer(s)
 
-- Frank Shearar (frsheara@microsoft.com)
+- Frank Shearar ([frsheara@microsoft.com](mailto:frsheara@microsoft.com))
