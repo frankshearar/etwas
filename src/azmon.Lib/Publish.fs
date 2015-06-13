@@ -30,7 +30,7 @@ let http (hub: IHubProxy) =
         doItNow(hub.Invoke("event", (serialize evt)))
 
 let stdout (evt: TraceEvent): unit =
-    printfn "%A" (serialize evt)
+    printfn "%s" (serialize evt)
 
 let private connectToSignalr url =
     let connection = new HubConnection(url)
