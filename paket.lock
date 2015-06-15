@@ -4,7 +4,13 @@ NUGET
     Dynamitey (1.0.2.0)
     EnterpriseLibrary.SemanticLogging (2.0.1406.1)
       Newtonsoft.Json (>= 5.0.8)
+    EnterpriseLibrary.SemanticLogging.WindowsAzure (2.0.1406.1)
+      EnterpriseLibrary.SemanticLogging (>= 2.0.1406.1)
+      WindowsAzure.Storage (>= 3.0.2.0)
     FAKE (3.35.1)
+    FSharp.Azure (1.0.1)
+      FSPowerPack.Linq.Community (>= 3.0.0.0)
+      WindowsAzure.Storage (>= 3.1.0.1)
     FSharp.Compiler.Service (0.0.89)
     FSharp.Core (3.1.2.1)
     FSharp.Formatting (2.8.0)
@@ -16,6 +22,9 @@ NUGET
     FSharpVSPowerTools.Core (1.7.0)
       FSharp.Compiler.Service (>= 0.0.81)
     FsPickler (1.2.9)
+    FSPowerPack.Core.Community (3.0.0.0)
+    FSPowerPack.Linq.Community (3.0.0.0)
+      FSPowerPack.Core.Community
     Microsoft.AspNet.SignalR.Client (2.2.0)
       Microsoft.Net.Http (>= 2.2.28) - framework: wpv8.1, portable-net45+sl50+win+wp80+wp81
       Newtonsoft.Json (>= 6.0.4) - framework: wpv8.1, portable-net45+sl50+win+wp80+wp81, >= net40, >= net45
@@ -30,8 +39,14 @@ NUGET
     Microsoft.Bcl (1.1.10)
       Microsoft.Bcl.Build (>= 1.0.14)
     Microsoft.Bcl.Build (1.0.21)
+    Microsoft.Data.Edm (5.6.4)
+    Microsoft.Data.OData (5.6.4)
+      Microsoft.Data.Edm (5.6.4)
+      System.Spatial (5.6.4)
+    Microsoft.Data.Services.Client (5.6.4) - framework: >= net40
+      Microsoft.Data.OData (5.6.4)
     Microsoft.Diagnostics.Tracing.TraceEvent (1.0.32)
-    Microsoft.Net.Http (2.2.29) - framework: wpv8.1, portable-net45+sl50+win+wp80+wp81
+    Microsoft.Net.Http (2.2.29) - framework: portable-net45+sl50+win+wp80+wp81
       Microsoft.Bcl (>= 1.1.10)
       Microsoft.Bcl.Build (>= 1.0.14)
     Microsoft.Owin (3.0.1)
@@ -43,6 +58,7 @@ NUGET
     Microsoft.Owin.Security (3.0.1)
       Microsoft.Owin (>= 3.0.1)
       Owin (>= 1.0)
+    Microsoft.WindowsAzure.ConfigurationManager (3.1.0) - framework: >= net40
     Nancy (1.2.0)
     Nancy.Hosting.Self (1.2.0)
       Nancy (>= 1.2.0)
@@ -70,7 +86,13 @@ NUGET
       Rx-Core (>= 2.2.5)
       Rx-Interfaces (>= 2.2.5)
     SourceLink.Fake (0.5.0)
+    System.Spatial (5.6.4)
     UnionArgParser (0.8.7)
+    WindowsAzure.Storage (4.3.0)
+      Microsoft.Data.OData (>= 5.6.2)
+      Microsoft.Data.Services.Client (>= 5.6.2) - framework: >= net40
+      Microsoft.WindowsAzure.ConfigurationManager (>= 1.8.0.0) - framework: >= net40
+      Newtonsoft.Json (>= 5.0.8) - framework: wpv8.0, >= net40
 GITHUB
   remote: fsharp/FAKE
   specs:
