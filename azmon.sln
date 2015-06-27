@@ -43,6 +43,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "azmons", "src\azmons\azmons
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Ping", "tests\Ping\Ping.fsproj", "{CA95F537-336C-437C-B364-2B36FAD4F624}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "azmonc", "src\azmonc\azmonc.fsproj", "{647DFA55-5AE3-4995-A7A1-82FD0237E942}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,6 +75,10 @@ Global
 		{CA95F537-336C-437C-B364-2B36FAD4F624}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA95F537-336C-437C-B364-2B36FAD4F624}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA95F537-336C-437C-B364-2B36FAD4F624}.Release|Any CPU.Build.0 = Release|Any CPU
+		{647DFA55-5AE3-4995-A7A1-82FD0237E942}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{647DFA55-5AE3-4995-A7A1-82FD0237E942}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{647DFA55-5AE3-4995-A7A1-82FD0237E942}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{647DFA55-5AE3-4995-A7A1-82FD0237E942}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

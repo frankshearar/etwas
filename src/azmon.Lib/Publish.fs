@@ -41,6 +41,11 @@ let stdout (evt: TraceEvent): unit =
 let private connectToSignalr url =
     let connection = new HubConnection(url)
     let hub = connection.CreateHubProxy("event")
+    connection.add_ConnectionSlow (fun () -> printfn ">>> connection slow: %s"   url)
+    connection.add_Closed         (fun () -> printfn ">>> connection closed: %s" url)
+    connection.add_Reconnecting   (fun () -> printfn ">>> reconnectioning: %s"   url)
+    connection.add_Reconnected    (fun () -> printfn ">>> reconnectioned: %s"    url)
+    connection.add_Error          (fun e  -> printfn ">>> error: %s\n>>> %s"    url (e.ToString()))
     doItNow(connection.Start())
     connection, hub
 
