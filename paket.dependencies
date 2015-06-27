@@ -1,6 +1,6 @@
 source https://nuget.org/api/v2
 
-nuget EnterpriseLibrary.SemanticLogging
+nuget EnterpriseLibrary.SemanticLogging 2.0.1406.1
 nuget FAKE
 nuget FsPickler
 nuget FSharp.Formatting 2.8.0
@@ -21,5 +21,6 @@ nuget Owin
 nuget Rx-Main
 nuget SourceLink.Fake
 nuget UnionArgParser
+nuget WindowsAzure.Storage 4.3.0
 
 github fsharp/FAKE modules/Octokit/Octokit.fsx

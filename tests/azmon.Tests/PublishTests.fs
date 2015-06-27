@@ -112,3 +112,23 @@ let ``SignalR server works``() =
     |> Async.RunSynchronously
     |> ignore
     Assert.That(spotted.Task.Result)
+
+[<TestCase("DefaultEndpointsProtocol=https;AccountName=storageaccountname;AccountKey=fakebase64;TableName=tablename")>]
+[<TestCase("DefaultEndpointsProtocol=https;AccountName=storageaccountname;TableName=tablename;AccountKey=fakebase64")>]
+[<TestCase("TableName=tablename;DefaultEndpointsProtocol=https;AccountName=storageaccountname;AccountKey=fakebase64")>]
+let ``connectionStringFrom parses out connection string``(name) =
+    Assert.AreEqual("DefaultEndpointsProtocol=https;AccountName=storageaccountname;AccountKey=fakebase64", (Publish.connectionStringFrom name))
+
+[<TestCase("DefaultEndpointsProtocol=https;AccountName=storageaccountname;AccountKey=fakebase64;TableName=tablename")>]
+[<TestCase("DefaultEndpointsProtocol=https;AccountName=storageaccountname;TableName=tablename;AccountKey=fakebase64")>]
+[<TestCase("TableName=tablename;DefaultEndpointsProtocol=https;AccountName=storageaccountname;AccountKey=fakebase64")>]
+let ``tableNamefrom parses out table name``(name) =
+    Assert.AreEqual("tablename", (Publish.tableNameFrom name))
+
+[<TestCase("DefaultEndpointsProtocol=https;AccountName=storageaccountname;AccountKey=fakebase64;TableName=tablename")>]
+let ``resolveSinkFailsForInvalidAzureName``(brokenName) =
+    Assert.Throws<ArgumentException>(fun () -> Publish.start [brokenName] (new Subject<_>()) |> ignore)
+
+[<TestCase("azure:UseDevelopmentStorage=true;TableName=tablename")>]
+let ``resolveSinkPassesForValidAzureName``(workingName) =
+    Assert.DoesNotThrow(fun () -> Publish.start [workingName] (new Subject<_>()) |> ignore)

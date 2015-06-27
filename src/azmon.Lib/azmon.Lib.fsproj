@@ -43,6 +43,15 @@
     <Reference Include="Microsoft.Diagnostics.Tracing.TraceEvent">
       <HintPath>..\..\packages\Microsoft.Diagnostics.Tracing.TraceEvent\lib\net40\Microsoft.Diagnostics.Tracing.TraceEvent.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.SemanticLogging">
+      <HintPath>..\..\packages\EnterpriseLibrary.SemanticLogging\lib\net45\Microsoft.Practices.EnterpriseLibrary.SemanticLogging.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.SemanticLogging.WindowsAzure">
+      <HintPath>..\..\packages\EnterpriseLibrary.SemanticLogging.WindowsAzure\lib\net45\Microsoft.Practices.EnterpriseLibrary.SemanticLogging.WindowsAzure.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAzure.Storage">
+      <HintPath>..\..\packages\WindowsAzure.Storage\lib\net40\Microsoft.WindowsAzure.Storage.dll</HintPath>
+    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <Private>True</Private>
@@ -62,6 +71,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsyncExtensions.fs" />
+    <Compile Include="AzureTableSink.fs" />
     <Compile Include="Monitor.fs" />
     <Compile Include="Publish.fs" />
   </ItemGroup>
