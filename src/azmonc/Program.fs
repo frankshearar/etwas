@@ -26,12 +26,11 @@ let registerExitOnCtrlC (canceller: CancellationTokenSource) session =
 [<EntryPoint>]
 let main argv = 
     try
-        if Array.isEmpty argv then
+        let args = parser.Parse (argv, raiseOnUsage = false, ignoreMissing = true)
+        if args.IsUsageRequested then
             printfn "%s" usage
             0
         else
-            let args = parser.Parse argv
-
             let canceller = new CancellationTokenSource()
 
             let runUntilCancelled = async {
@@ -41,10 +40,11 @@ let main argv =
 
                 while true do
                     do! Async.Sleep(1000)
+
+                return 0
             }
 
             Async.RunSynchronously(runUntilCancelled, 10000, canceller.Token)
-            0
     with
     | :? System.ArgumentException as e ->
         printfn "%s" usage

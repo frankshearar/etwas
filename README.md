@@ -20,6 +20,11 @@ On every machine in your deployment, run `azmon.exe`. On your aggregators (you m
            --port <int>: Listen on a particular port. Defaults to 8080
            --help [-h|/h|/help|/?]: display this list of options.
 
+    $ src/azmonc/bin/Debug/azmonc --help
+    
+            --server <string>: HTTP/S URI of Azmon server
+            --help [-h|/h|/help|/?]: display this list of options.
+
 ## TODO
 
 * Keep azmon.exe running when azmons.exe quits. (Or, handle server disconnects gracefully.)

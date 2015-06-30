@@ -50,7 +50,6 @@ let main argv =
                     return 0
                 }
             Async.RunSynchronously(runUntilCancelled, 10000, canceller.Token)
-
     with
     | :? System.ArgumentException as e ->
         printfn "%s" usage
