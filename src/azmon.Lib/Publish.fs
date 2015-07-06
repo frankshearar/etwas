@@ -42,33 +42,46 @@ let http (url: string) =
     connection.add_Error          (fun e  -> printfn ">>> error: %s :\n>>> %s"   url (e.ToString()))
     let buffer = new BufferBlock<_>()
 
-    let firstTime = ref true
-    let sendEvent (serialisedEvent: string) =
-        if !firstTime then
-            printfn ">>> Connecting for the first time"
-            // The connection _should_ handle reconnections, so we only need to kick things off once.
-            firstTime := false
-            doItNow(connection.Start()) // Need to handle connection failures better.
-        printfn ">>> Sending event"
-        try
-            doItNow(hub.Invoke("event", serialisedEvent))
-        with
-        | e -> printfn "Boom: %s" (e.ToString())
-
-    let wat = {new IObserver<_> with
-                        member __.OnNext(_) = printfn "Next"
-                        member __.OnError(e) = printfn "Error: %A" e
-                        member __.OnCompleted() = printfn "Completed"}
-    let events = buffer.AsObservable()
-    events.Subscribe wat |> ignore
-
-    let sendToBuffer = Observable.subscribe sendEvent events
-
+    // --> BufferBlock
     let sink = fun (evt: TraceEvent) ->
                     // Diagnostics "aggressively reuses" TraceEvent instances, and cloning is more
                     // expensive than just reading out the data. We could write these data out to
                     // our own type, but we have to serialize sooner or later anyway...
                     buffer.Post((serialize evt)) |> ignore
+
+    // BufferBlock -->
+    let firstTime = ref true
+    let sendEvent (serialisedEvent: string) =
+        async {
+            if !firstTime then
+                printfn ">>> Connecting for the first time"
+                // The connection _should_ handle reconnections, so we only need to kick things off once.
+                firstTime := false
+                let running = ref false
+                while not !running do
+                    try
+                        do! connection.Start() |> awaitTask
+                        running := true
+                    with
+                    | :? AggregateException as e ->
+                        do! Async.Sleep 1000
+                        printfn "Error connecting; retrying: %s" (e.ToString())
+
+            printfn ">>> Sending event"
+            try
+                do! hub.Invoke("event", serialisedEvent) |> awaitTask
+            with
+            | e -> printfn "Boom: %s" (e.ToString())
+        } |> Async.RunSynchronously
+
+    let outOfBlock = buffer.AsObservable()
+//    let observeToConsole = {new IObserver<_> with
+//                             member __.OnNext(_)     = printfn "Next"
+//                             member __.OnError(e)    = printfn "Error: %s" (e.ToString())
+//                             member __.OnCompleted() = printfn "Completed"}
+//    outOfBlock.Subscribe observeToConsole |> ignore
+
+    let sendToBuffer = Observable.subscribe sendEvent outOfBlock
     sendToBuffer, sink
 
 let stdout (evt: TraceEvent): unit =
