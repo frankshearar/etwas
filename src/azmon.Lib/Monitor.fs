@@ -35,7 +35,7 @@ let private enableProviders (names: string list) (session: Session) =
     names
     |> List.iter (fun s -> printfn "Enabling %s" s
                            match s with
-                           | "clr" ->  session.Trace.EnableProvider "e13c0d23-ccbc-4e12-931b-d9cc2eee27e4" |> ignore // TODO: properly confugrure this!
+                           | "clr" ->  session.Trace.EnableProvider "e13c0d23-ccbc-4e12-931b-d9cc2eee27e4" |> ignore // TODO: properly configure this!
                            | _     -> session.Trace.EnableProvider s |> ignore
                            printfn "Enabled %s" s)
 
