@@ -11,6 +11,7 @@ nuget Microsoft.AspNet.SignalR.Core
 nuget Microsoft.AspNet.SignalR.Owin
 nuget Microsoft.Owin.Host.HttpListener
 nuget Microsoft.Owin.Hosting
+nuget Microsoft.Tpl.Dataflow
 nuget Nancy
 nuget Nancy.Hosting.Self
 nuget Nancy.Owin
