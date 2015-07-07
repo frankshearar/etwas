@@ -8,6 +8,7 @@ type Arguments =
     | Source of string
     | Sink of string
     | Stop
+    | Debug
 with
     interface IArgParserTemplate with
         member s.Usage =
@@ -15,6 +16,7 @@ with
             | Source _ -> "Publish events from a named ETW event source. Allowed: HTTP URIs, 'stdout', 'clr'. May occur multiple times."
             | Sink _   -> "Only support HTTP URLs at the moment, or \"stdout\". No sources means logging to stdout. May occur multiple times."
             | Stop     -> "Stop listening to events (affects ALL running azmon processes). If present, other parameters are ignored."
+            | Debug    -> "Print debug information"
 
 let parser = UnionArgParser.Create<Arguments>()
 let usage = parser.Usage()
@@ -59,8 +61,9 @@ let main argv =
                 }
 
                 let monitor = async {
+                    let printDebug = args.Contains <@ Debug @>
                     use publishing = monitoring.Subject
-                                     |> Publish.start (args.GetResults <@ Sink @>)
+                                     |> Publish.start (args.GetResults <@ Sink @>) printDebug
 
                     while true do
                         do! Async.Sleep(1000)

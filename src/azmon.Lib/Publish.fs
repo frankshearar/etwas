@@ -1,4 +1,14 @@
-﻿module Publish
+﻿// "Fan out" events to all configured data sinks.
+// We always print errors to stdout.
+// We usually print rare events like reconnections to SignalR sinks.
+// We only print other diagnostic information when we pass printDebug = true
+// to Publish.start.
+//
+// Basic architecture: the user supplies the names of data sinks.
+// resolveSink turns these names into (TraceEvent -> unit) functions that, when given
+// a TraceEvent, sends the data wherever it needs to go. Given no sinks, we publish
+// only to stdout.
+module Publish
 
 open AsyncExtensions
 open Microsoft.Practices.EnterpriseLibrary.SemanticLogging.Sinks
@@ -32,29 +42,14 @@ let private serialize (evt: TraceEvent) =
 let azureTable (sink: WindowsAzureTableSink) =
     AzureTableSink.translateToInProc >> sink.OnNext
 
-let http (url: string) =
-    let connection = new HubConnection(url)
-    let hub = connection.CreateHubProxy("event")
-    connection.add_ConnectionSlow (fun () -> printfn ">>> connection slow: %s"   url)
-    connection.add_Closed         (fun () -> printfn ">>> connection closed: %s" url)
-    connection.add_Reconnecting   (fun () -> printfn ">>> reconnecting: %s"      url)
-    connection.add_Reconnected    (fun () -> printfn ">>> reconnected: %s"       url)
-    connection.add_Error          (fun e  -> printfn ">>> error: %s :\n>>> %s"   url (e.ToString()))
-    let buffer = new BufferBlock<_>()
-
-    // --> BufferBlock
-    let sink = fun (evt: TraceEvent) ->
-                    // Diagnostics "aggressively reuses" TraceEvent instances, and cloning is more
-                    // expensive than just reading out the data. We could write these data out to
-                    // our own type, but we have to serialize sooner or later anyway...
-                    buffer.Post((serialize evt)) |> ignore
-
-    // BufferBlock -->
+// Return a function that, when run, will repeatedly try connect
+// (at 1 attempt/second) to a SignalR server.
+let connectWithRetry (printDebug: bool) =
     let firstTime = ref true
-    let sendEvent (serialisedEvent: string) =
+    fun (connection: Connection) ->
         async {
             if !firstTime then
-                printfn ">>> Connecting for the first time"
+                if printDebug then printfn ">>> Connecting for the first time"
                 // The connection _should_ handle reconnections, so we only need to kick things off once.
                 firstTime := false
                 let running = ref false
@@ -66,8 +61,33 @@ let http (url: string) =
                     | :? AggregateException as e ->
                         do! Async.Sleep 1000
                         printfn "Error connecting; retrying: %s" (e.ToString())
+        }
 
-            printfn ">>> Sending event"
+
+let http (printDebug: bool) (url: string) =
+    let connection = new HubConnection(url)
+    connection.add_ConnectionSlow (fun () -> printfn ">>> connection slow: %s"   url)
+    connection.add_Closed         (fun () -> printfn ">>> connection closed: %s" url)
+    connection.add_Reconnecting   (fun () -> printfn ">>> reconnecting: %s"      url)
+    connection.add_Reconnected    (fun () -> printfn ">>> reconnected: %s"       url)
+    connection.add_Error          (fun e  -> printfn ">>> error: %s :\n>>> %s"   url (e.ToString()))
+    let hub = connection.CreateHubProxy("event")
+    let buffer = new BufferBlock<_>()
+
+    // --> BufferBlock
+    let sink = fun (evt: TraceEvent) ->
+                    // Diagnostics "aggressively reuses" TraceEvent instances, and cloning is more
+                    // expensive than just reading out the data. We could write these data out to
+                    // our own type, but we have to serialize sooner or later anyway...
+                    buffer.Post((serialize evt)) |> ignore
+
+    // BufferBlock -->
+    let connect = connectWithRetry printDebug
+    let sendEvent (serialisedEvent: string) =
+        async {
+            do! connect(connection)
+
+            if printDebug then printfn ">>> Sending event"
             try
                 do! hub.Invoke("event", serialisedEvent) |> awaitTask
             with
@@ -75,11 +95,12 @@ let http (url: string) =
         } |> Async.RunSynchronously
 
     let outOfBlock = buffer.AsObservable()
-//    let observeToConsole = {new IObserver<_> with
-//                             member __.OnNext(_)     = printfn "Next"
-//                             member __.OnError(e)    = printfn "Error: %s" (e.ToString())
-//                             member __.OnCompleted() = printfn "Completed"}
-//    outOfBlock.Subscribe observeToConsole |> ignore
+    if printDebug then
+        let observeToConsole = {new IObserver<_> with
+                                 member __.OnNext(_)     = printfn "Next"
+                                 member __.OnError(e)    = printfn "Error: %s" (e.ToString())
+                                 member __.OnCompleted() = printfn "Completed"}
+        outOfBlock.Subscribe observeToConsole |> ignore
 
     let sendToBuffer = Observable.subscribe sendEvent outOfBlock
     sendToBuffer, sink
@@ -102,10 +123,11 @@ let tableNameFrom (s: string) =
     let bits = keyValue.Split([|'='|])
     Array.get bits 1
 
-// Map a name to a function that accepts a TraceEvent
-let private resolveSink (name: string) session =
+// Map a name to a function that accepts a TraceEvent, and return a session that
+// contains this function.
+let private resolveSink (printDebug : bool) (name: string) session =
     if name.StartsWith("http") || name.StartsWith("https") then
-        let connection, sink = http name
+        let connection, sink = http printDebug name
         {session with Sinks = Map.add name sink session.Sinks; HttpSinks = connection :: session.HttpSinks}
     else if name.StartsWith("azure") then
         let parts = name.Split([|':'|])
@@ -122,7 +144,7 @@ let private resolveSink (name: string) session =
 
 // Return a PublishSession that has subscribed a callback to each
 // (recognised) name in names.
-let start names (subject: IObservable<TraceEvent>) =
+let start names (printDebug: bool) (subject: IObservable<TraceEvent>) =
     printfn "Publishing started"
     let keys map =
         map
@@ -131,7 +153,7 @@ let start names (subject: IObservable<TraceEvent>) =
     let session  = if List.isEmpty names then ["stdout"] else names
                    |> Seq.ofList
                    |> Seq.distinct
-                   |> Seq.fold (fun session each -> resolveSink each session) newSession
+                   |> Seq.fold (fun session each -> resolveSink printDebug each session) newSession
     let sinkObservers = (keys session.Sinks)
                         |> List.map (fun sink -> Observable.subscribe sink subject)
     let otherObservers = if session.ToStdout then [Observable.subscribe stdout subject] else []
