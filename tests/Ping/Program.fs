@@ -33,14 +33,14 @@ let main argv =
             printfn "%s" usage
             0
         else
-            let eventsPerSecond = args.GetResult (<@ Rate @>, defaultValue = -1L)
+            let eventsPerSecond = args.GetResult (<@ Rate @>, defaultValue = 1L)
 
             let canceller = new CancellationTokenSource()
             let msgCount = ref 0L
             let timer = new System.Diagnostics.Stopwatch()
             let freq = System.Diagnostics.Stopwatch.Frequency
             let ticksPerSend = freq / eventsPerSecond
-            printfn "Timer frequency:        %d" System.Diagnostics.Stopwatch.Frequency
+            printfn "Timer frequency:        %d Hz" System.Diagnostics.Stopwatch.Frequency
             printfn "Timer high resolution?: %A" System.Diagnostics.Stopwatch.IsHighResolution
 
             let publishMessageRate = async {
