@@ -6,6 +6,9 @@ Azmon is primarily intended for monitoring machines in an Azure deployment, but 
 
 On every machine in your deployment, run `azmon.exe`. On your aggregators (you may have as many as you like) run `azmons.exe`.
 
+To see the events in your aggregators, either connect to one through your browser or point `azmonc.exe` to one. `azmonc` will
+dump events to the console.
+
 ## How to use it
 
     $ azmon.exe
