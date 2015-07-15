@@ -42,6 +42,8 @@ let private serialize (evt: TraceEvent) =
 let azureTable (sink: WindowsAzureTableSink) =
     AzureTableSink.translateToInProc >> sink.OnNext
 
+let private debug printDebug s = if printDebug then printfn s
+
 // Return a function that, when run, will repeatedly try connect
 // (at 1 attempt/second) to a SignalR server.
 let connectWithRetry (printDebug: bool) =
@@ -49,7 +51,7 @@ let connectWithRetry (printDebug: bool) =
     fun (connection: Connection) ->
         async {
             if !firstTime then
-                if printDebug then printfn ">>> Connecting for the first time"
+                debug printDebug ">>> Connecting for the first time"
                 // The connection _should_ handle reconnections, so we only need to kick things off once.
                 firstTime := false
                 let running = ref false
@@ -87,7 +89,7 @@ let http (printDebug: bool) (url: string) =
         async {
             do! connect(connection)
 
-            if printDebug then printfn ">>> Sending event"
+            debug printDebug ">>> Sending event"
             try
                 do! hub.Invoke("event", serialisedEvent) |> awaitTask
             with
