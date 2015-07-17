@@ -9,7 +9,7 @@ type Conn(url: string) =
     let subject = new Subject<string>()
     let connection = new HubConnection(url)
     let hub = connection.CreateHubProxy("display")
-    let events = hub.On("event", fun s -> printfn("recvd"); subject.OnNext(s))
+    let events = hub.On("event", fun s -> subject.OnNext(s))
     member __.Subject with get() = subject
     member __.Start() =
         connection.add_ConnectionSlow (fun () -> printfn ">>> connection slow: %s"   url)
