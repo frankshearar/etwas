@@ -71,10 +71,14 @@ type BlankTraceEvent() =
 //    Assert.That(spotted.Task.IsCompleted)
 //    Assert.That(spotted.Task.Result)
 
+// 1-adic Constantly
+let constantly x =
+    fun _ -> x
+
 [<Test>]
 let ``Publish.start [] logs to stdout``() =
     use ignored = new Subject<_>()
-    use session = Publish.start [] true ignored
+    use session = Publish.start [] (constantly None) true ignored
     Assert.That(session.ToStdout)
     Assert.That(true, "Actual functionality covered by the ConsoleTests")
 
@@ -82,7 +86,7 @@ let ``Publish.start [] logs to stdout``() =
 let ``HTTP sinks automatically dedupe``() =
     use server = getServer()
     use ignored = new Subject<_>()
-    use session = Publish.start [server.Uri; server.Uri] true ignored
+    use session = Publish.start [server.Uri; server.Uri] (constantly None) true ignored
     Assert.AreEqual(1, List.length session.HttpSinks)
 
 // Test has rotted - need to restore!
@@ -129,8 +133,8 @@ let ``tableNamefrom parses out table name``(name) =
 
 [<TestCase("DefaultEndpointsProtocol=https;AccountName=storageaccountname;AccountKey=fakebase64;TableName=tablename")>]
 let ``resolveSinkFailsForInvalidAzureName``(brokenName) =
-    Assert.Throws<ArgumentException>(fun () -> Publish.start [brokenName] true (new Subject<_>()) |> ignore)
+    Assert.Throws<ArgumentException>(fun () -> Publish.start [brokenName] (constantly None) true (new Subject<_>()) |> ignore)
 
 [<TestCase("azure:UseDevelopmentStorage=true;TableName=tablename")>]
 let ``resolveSinkPassesForValidAzureName``(workingName) =
-    Assert.DoesNotThrow(fun () -> Publish.start [workingName] true (new Subject<_>()) |> ignore)
+    Assert.DoesNotThrow(fun () -> Publish.start [workingName] (constantly None) true (new Subject<_>()) |> ignore)

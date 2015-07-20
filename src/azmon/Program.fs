@@ -9,6 +9,7 @@ type Arguments =
     | Sink of string
     | Stop
     | Debug
+    | Install_Counters
 with
     interface IArgParserTemplate with
         member s.Usage =
@@ -17,6 +18,7 @@ with
             | Sink _   -> "Only support HTTP URLs at the moment, or \"stdout\". No sources means logging to stdout. May occur multiple times."
             | Stop     -> "Stop listening to events (affects ALL running azmon processes). If present, other parameters are ignored."
             | Debug    -> "Print debug information"
+            | Install_Counters -> "Install performance counters"
 
 let parser = UnionArgParser.Create<Arguments>()
 let usage = parser.Usage()
@@ -42,17 +44,26 @@ let main argv =
         else
             let args = parser.Parse argv
 
-            if args.Contains <@ Stop @> then
+            if args.Contains <@ Install_Counters @> then
+                Counter.installCounters()
+                0
+            else if args.Contains <@ Stop @> then
                 Monitor.stopSessionByName "Azmon-Trace-Session" |> ignore
                 0
             else
+                let receiveCounter = Counter.createCounter "Receive messages per second"
+                let messageCounter = Counter.createCounter "Message count"
+
                 let canceller = new CancellationTokenSource()
                 let msgCount = ref 0L
 
                 let monitoring = Monitor.start "Azmon-Trace-Session" (args.GetResults <@ Source @>)
 
                 use countEvents = monitoring.Subject
-                                  |> Observable.subscribe (fun _ -> Interlocked.Increment(msgCount) |> ignore)
+                                  |> Observable.subscribe (fun _ ->
+                                    receiveCounter |> Counter.fireCounter
+                                    messageCounter |> Counter.fireCounter
+                                    Interlocked.Increment(msgCount) |> ignore)
 
                 let publishMessageRate = async {
                     while true do
@@ -63,7 +74,7 @@ let main argv =
                 let monitor = async {
                     let printDebug = args.Contains <@ Debug @>
                     use publishing = monitoring.Subject
-                                     |> Publish.start (args.GetResults <@ Sink @>) printDebug
+                                     |> Publish.start (args.GetResults <@ Sink @>) Counter.createCounter printDebug
 
                     while true do
                         do! Async.Sleep(1000)

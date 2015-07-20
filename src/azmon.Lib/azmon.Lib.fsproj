@@ -78,6 +78,7 @@
   <ItemGroup>
     <Compile Include="AsyncExtensions.fs" />
     <Compile Include="AzureTableSink.fs" />
+    <Compile Include="Counter.fs" />
     <Compile Include="Listen.fs" />
     <Compile Include="Monitor.fs" />
     <Compile Include="Publish.fs" />

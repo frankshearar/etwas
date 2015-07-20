@@ -15,6 +15,7 @@ open Microsoft.Practices.EnterpriseLibrary.SemanticLogging.Sinks
 open Microsoft.AspNet.SignalR.Client
 open Microsoft.Diagnostics.Tracing
 open System
+open System.Diagnostics
 open System.Threading
 open System.Threading.Tasks.Dataflow
 
@@ -146,7 +147,7 @@ let private resolveSink (printDebug : bool) (name: string) session =
 
 // Return a PublishSession that has subscribed a callback to each
 // (recognised) name in names.
-let start names (printDebug: bool) (subject: IObservable<TraceEvent>) =
+let start names (counterMaker: string -> PerformanceCounter option) (printDebug: bool) (subject: IObservable<TraceEvent>) =
     printfn "Publishing started"
     let keys map =
         map
