@@ -66,6 +66,7 @@ let connectWithRetry (printDebug: bool) =
                         printfn "Error connecting; retrying: %s" (e.ToString())
         }
 
+let totalBufferSize = ref 0L
 
 let http (printDebug: bool) (url: string) =
     let connection = new HubConnection(url)
@@ -79,6 +80,7 @@ let http (printDebug: bool) (url: string) =
 
     // --> BufferBlock
     let sink = fun (evt: TraceEvent) ->
+                    Interlocked.Increment(totalBufferSize) |> ignore
                     // Diagnostics "aggressively reuses" TraceEvent instances, and cloning is more
                     // expensive than just reading out the data. We could write these data out to
                     // our own type, but we have to serialize sooner or later anyway...
@@ -93,9 +95,11 @@ let http (printDebug: bool) (url: string) =
             debug printDebug ">>> Sending event"
             try
                 do! hub.Invoke("event", serialisedEvent) |> awaitTask
+
             with
             | e -> printfn "Boom: %s" (e.ToString())
         } |> Async.RunSynchronously
+        Interlocked.Decrement(totalBufferSize) |> ignore
 
     let outOfBlock = buffer.AsObservable()
     if printDebug then
@@ -148,6 +152,14 @@ let private resolveSink (printDebug : bool) (name: string) session =
 // Return a PublishSession that has subscribed a callback to each
 // (recognised) name in names.
 let start names (counterMaker: string -> PerformanceCounter option) (printDebug: bool) (subject: IObservable<TraceEvent>) =
+    let publishPerf = async {
+        let bufCount = counterMaker "Total publishing buffer size"
+        while true do
+            do! Async.Sleep 1000
+            !totalBufferSize |> Counter.setCounter bufCount
+    }
+    publishPerf |> Async.Start
+
     printfn "Publishing started"
     let keys map =
         map

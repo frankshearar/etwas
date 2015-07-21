@@ -4,9 +4,9 @@ open System.Diagnostics
 
 let counterCreationData name ctype = new CounterCreationData(name, "", ctype)
 let counters = [|
-                counterCreationData "Receive messages per second" PerformanceCounterType.RateOfCountsPerSecond64
-                counterCreationData "Publish messages per second" PerformanceCounterType.RateOfCountsPerSecond64
+                counterCreationData "Receive messages/second" PerformanceCounterType.RateOfCountsPerSecond64
                 counterCreationData "Message count" PerformanceCounterType.NumberOfItems64
+                counterCreationData "Total publishing buffer size" PerformanceCounterType.NumberOfItems64
                |]
 
 let installCounters() =
@@ -29,4 +29,9 @@ let createCounter name =
 let fireCounter (counter: PerformanceCounter option) =
     match counter with
     | Some x -> x.Increment() |> ignore
+    | None   -> ()
+
+let setCounter (counter: PerformanceCounter option) newValue =
+    match counter with
+    | Some x -> x.RawValue <- newValue
     | None   -> ()
