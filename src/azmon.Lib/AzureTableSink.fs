@@ -18,7 +18,7 @@ let translateToInProc(e: TraceEvent): EventEntry =
                                  e.TaskName,
                                  enum<EventOpcode>(int(e.Opcode)),
                                  e.OpcodeName,
-                                 (*e.Keywords*)Unchecked.defaultof<EventKeywords>, // TODO: Fix Keyword translation
+                                 Unchecked.defaultof<EventKeywords>, (*e.Keywords*)// TODO: Fix Keyword translation
                                  "keywordsDescription",                            // TODO: Fix Keyword translation
                                  e.Version,
                                  e.PayloadNames)
