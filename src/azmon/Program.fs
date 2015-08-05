@@ -51,7 +51,7 @@ let main argv =
                 Monitor.stopSessionByName "Azmon-Trace-Session" |> ignore
                 0
             else
-                let receiveCounter = Counter.createCounter "Receive messages per second"
+                let receiveCounter = Counter.createCounter "ETW Receive messages per second"
                 let messageCounter = Counter.createCounter "Message count"
 
                 let canceller = new CancellationTokenSource()

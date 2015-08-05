@@ -4,7 +4,8 @@ open System.Diagnostics
 
 let counterCreationData name ctype = new CounterCreationData(name, "", ctype)
 let counters = [|
-                counterCreationData "Receive messages/second" PerformanceCounterType.RateOfCountsPerSecond64
+                counterCreationData "ETW Receive messages/second" PerformanceCounterType.RateOfCountsPerSecond64
+                counterCreationData "Server Receive messages/second" PerformanceCounterType.RateOfCountsPerSecond64
                 counterCreationData "Message count" PerformanceCounterType.NumberOfItems64
                 counterCreationData "Total publishing buffer size" PerformanceCounterType.NumberOfItems64
                |]
