@@ -102,7 +102,6 @@ let http (printDebug: bool) (url: string) =
             debug printDebug ">>> Sending event"
             try
                 do! hub.Invoke("event", serialisedEvent) |> awaitTask
-
             with
             | e -> printfn "Boom: %s" (e.ToString())
         } |> Async.RunSynchronously
@@ -133,9 +132,12 @@ let connectionStringFrom (s: string) =
 let tableNameFrom (s: string) =
     let pieces = s.Split([|";"|], StringSplitOptions.RemoveEmptyEntries)
     let keyValues = pieces |> Array.filter (fun v -> v.ToLower().StartsWith("tablename"))
-    let keyValue = Array.get keyValues 0
-    let bits = keyValue.Split([|'='|])
-    Array.get bits 1
+    if Array.isEmpty keyValues then
+        "Azmon" // Default to an egotistical name.
+    else
+        let keyValue = Array.get keyValues 0
+        let bits = keyValue.Split([|'='|])
+        Array.get bits 1
 
 // Map a name to a function that accepts a TraceEvent, and return a session that
 // contains this function.
