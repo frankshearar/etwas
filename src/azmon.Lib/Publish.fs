@@ -14,23 +14,25 @@ open AsyncExtensions
 open Microsoft.Practices.EnterpriseLibrary.SemanticLogging.Sinks
 open Microsoft.AspNet.SignalR.Client
 open Microsoft.Diagnostics.Tracing
+open Microsoft.WindowsAzure.ServiceRuntime
 open System
 open System.Diagnostics
 open System.Threading
 open System.Threading.Tasks.Dataflow
 
 type Session = {
-                 Sinks: Map<string,TraceEvent->unit>
-                 HttpSinks: IDisposable list
-                 TableSinks: WindowsAzureTableSink list
+                 Sinks: Map<string,TraceEvent->unit>     // Map the names in the session to their sink functions.
+                 HttpSinks: IDisposable list             // | Tracking the Sinks separately lets us test that
+                 TableSinks: WindowsAzureTableSink list  // | deduplication of sinks happens.
+                 Observers: IDisposable list             // |
                  ToStdout: bool
-                 Observers: IDisposable list
                }
     with
     interface IDisposable with
         member x.Dispose() =
-            x.HttpSinks |> List.iter (fun s -> s.Dispose())
-            x.Observers |> List.iter (fun d -> d.Dispose())
+            x.HttpSinks  |> List.iter (fun s -> s.Dispose())
+            x.Observers  |> List.iter (fun d -> d.Dispose())
+            x.TableSinks |> List.iter (fun t -> t.Dispose())
 
 let newSession = {Sinks = Map.empty; HttpSinks = List.empty; TableSinks = List.empty; ToStdout = false; Observers = List.empty}
 
@@ -66,6 +68,11 @@ let connectWithRetry (printDebug: bool) =
                         printfn "Error connecting; retrying: %s" (e.ToString())
         }
 
+// Tracks buffered messages across ALL HTTP sinks. Ideally we'd break these
+// out into separate counters, but then we need to define the counters
+// separately, and we'd need to have --install-counters know how many sinks
+// we have. In the case of a role: sink, we cannot know until runtime how
+// many sinks we'd need...
 let totalBufferSize = ref 0L
 
 let http (printDebug: bool) (url: string) =
