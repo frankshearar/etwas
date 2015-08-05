@@ -155,7 +155,7 @@ let start names (counterMaker: string -> PerformanceCounter option) (printDebug:
     let publishPerf = async {
         let bufCount = counterMaker "Total publishing buffer size"
         while true do
-            do! Async.Sleep 1000
+            do! Async.Sleep 500 // Means in perfmon you don't get a "wiggle" where 2 secs pass before an update.
             !totalBufferSize |> Counter.setCounter bufCount
     }
     publishPerf |> Async.Start
