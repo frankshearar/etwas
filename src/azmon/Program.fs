@@ -33,7 +33,7 @@ let registerExitOnCtrlC (canceller: CancellationTokenSource) session =
     |> ignore
 
 let printMessagesPerSecond n =
-    printfn "%d\tmsg/s" n
+    eprintfn "%d\tmsg/s" n
 
 [<EntryPoint>]
 let main argv =
