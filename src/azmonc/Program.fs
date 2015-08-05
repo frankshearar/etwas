@@ -15,7 +15,7 @@ type Arguments =
 let parser = UnionArgParser.Create<Arguments>()
 let usage = parser.Usage()
 
-let registerExitOnCtrlC (canceller: CancellationTokenSource) session =
+let registerExitOnCtrlC (canceller: CancellationTokenSource) =
     Console.CancelKeyPress
     |> Observable.subscribe (fun _ ->
         // Like tears in rain... time to die.
@@ -33,6 +33,8 @@ let main argv =
             let canceller = new CancellationTokenSource()
 
             let runUntilCancelled = async {
+                registerExitOnCtrlC canceller
+
                 // Connect to the server. Add reconnection logic?
                 use! conn = Listen.connect (args.GetResult <@ Server @>)
                 use events = Observable.subscribe (fun (e: string) -> printfn "%s" e) conn.Subject
