@@ -39,11 +39,13 @@ let main argv =
             0
         else
             let port = args.GetResult (<@ Port @>, defaultValue = 8080)
-            let uri = sprintf "http://localhost:%d/" port // Despite the FQDN, this will listen on all interfaces.
+            let opts = new StartOptions()
+            opts.ServerFactory <- "Nowin"
+            opts.Port <- new Nullable<_>(port)
 
             let canceller = new CancellationTokenSource()
             let runUntilCancelled = async {
-                    let server = WebApp.Start<Bootstrapper.Startup>(uri)
+                    let server = WebApp.Start<Bootstrapper.Startup>(opts)
                     while true do
                         do! Async.Sleep 1000
 

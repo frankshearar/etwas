@@ -15,6 +15,7 @@ nuget Microsoft.Tpl.Dataflow
 nuget Nancy
 nuget Nancy.Hosting.Self
 nuget Nancy.Owin
+nuget Nowin
 nuget NUnit
 nuget NUnit.Runners
 nuget Microsoft.Diagnostics.Tracing.TraceEvent

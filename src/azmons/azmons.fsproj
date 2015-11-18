@@ -108,6 +108,9 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\packages\Newtonsoft.Json\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="Nowin">
+      <HintPath>..\..\packages\Nowin\lib\net45\Nowin.dll</HintPath>
+    </Reference>
     <Reference Include="Owin">
       <HintPath>..\..\packages\Owin\lib\net40\Owin.dll</HintPath>
     </Reference>
