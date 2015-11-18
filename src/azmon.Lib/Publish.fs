@@ -119,7 +119,18 @@ let http (printDebug: bool) (url: string) =
     sendToBuffer, sink
 
 let stdout (evt: TraceEvent): unit =
-    printfn "%s" (serialize evt)
+    printfn "Event: %d%s" (int evt.ID) (if evt.EventName = "" then "" else sprintf " (%s)" evt.EventName)
+    printfn "Timestamp: %s" (evt.TimeStamp.ToString("o"))
+    printfn "Task: %s" evt.TaskName
+    printfn "ActivityId: %s" (evt.ActivityID.ToString())
+    printfn "Message: '%s'" evt.FormattedMessage
+    evt.PayloadNames
+    |> Array.map (fun name -> name, (evt.PayloadIndex(name)))
+    |> Array.map (fun (name, idx) -> name, evt.PayloadString(idx))
+    |> Array.map (fun (name, value) -> sprintf "%s = %s" name value)
+    |> String.concat "\n"
+    |> printfn "%s"
+    //printfn "%s" (serialize evt)
 
 // Remove our custom "TableName=thing" value from a normal Azure connection string.
 let connectionStringFrom (s: string) =
