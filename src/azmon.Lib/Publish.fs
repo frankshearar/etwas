@@ -166,6 +166,15 @@ let private resolveSink (printDebug : bool) (name: string) session =
         let sink = new WindowsAzureTableSink("instanceName", connectionString, tableName, TimeSpan.FromSeconds(1.0), 2000, Timeout.InfiniteTimeSpan)
         let newPub = azureTable sink
         {session with Sinks = Map.add name newPub session.Sinks; TableSinks = sink :: session.TableSinks}
+    else if name.StartsWith("role") then
+        let parts = name.Split([|':'|])
+        if parts.Length < 3 then invalidArg "name" (sprintf "Not a valid Role sink name: %s" name)
+        let roleName = parts.[1]
+        let endpoint = parts.[2]
+        RoleEnvironment.Roles.[roleName].Instances
+        |> Seq.map (fun instance -> instance.InstanceEndpoints.[endpoint].IPEndpoint)
+        |> Seq.map (fun endpoint -> sprintf "http://%s:%d" (endpoint.Address.ToString()) endpoint.Port)
+        |> Seq.fold (fun newSession sink -> resolveHttp printDebug sink newSession) session
     else if name.ToLower() = "stdout" then
         {session with ToStdout = true}
     else

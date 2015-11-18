@@ -14,8 +14,8 @@ with
     interface IArgParserTemplate with
         member s.Usage =
             match s with
-            | Source _ -> "Publish events from a named ETW event source. Allowed: HTTP URIs, 'stdout', 'clr'. May occur multiple times."
-            | Sink _   -> "Only support HTTP URLs at the moment, or \"stdout\". No sources means logging to stdout. May occur multiple times."
+            | Source _ -> "Publish events from a named ETW event source. Allowed: event provider names, 'clr'. May occur multiple times."
+            | Sink _   -> "HTTP URLs, or 'role:InstanceName' for Azure roles, or 'stdout'. No sources means logging to stdout. May occur multiple times."
             | Stop     -> "Stop listening to events (affects ALL running azmon processes). If present, other parameters are ignored."
             | Debug    -> "Print debug information"
             | Install_Counters -> "Install performance counters"

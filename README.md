@@ -13,8 +13,8 @@ dump events to the console.
 
     $ azmon.exe
     
-            --source <string>: Publish events from a named ETW event source. Allowed: HTTP URIs, 'stdout', 'clr'. May occur multiple times
-            --sink <string>: Only support HTTP URLs at the moment, or "stdout". No sources means logging to stdout. May occur multiple times.
+            --source <string>: Publish events from a named ETW event source. Allowed: event provider names, 'stdout', 'clr'. May occur multiple times
+            --sink <string>: 'HTTP URLs, or 'role:InstanceName' for Azure roles, or 'stdout'. No sources means logging to stdout. May occur multiple times.'
             --stop: Stop listening to events (affects ALL running azmon processes). If present, other parameters are ignored.
             --help [-h|/h|/help|/?]: display this list of options.
 
