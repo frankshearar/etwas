@@ -142,9 +142,11 @@ let tableNameFrom (s: string) =
 // Map a name to a function that accepts a TraceEvent, and return a session that
 // contains this function.
 let private resolveSink (printDebug : bool) (name: string) session =
-    if name.StartsWith("http") || name.StartsWith("https") then
+    let resolveHttp printDebug name session =
         let connection, sink = http printDebug name
         {session with Sinks = Map.add name sink session.Sinks; HttpSinks = connection :: session.HttpSinks}
+    if name.StartsWith("http") || name.StartsWith("https") then
+        resolveHttp printDebug name session
     else if name.StartsWith("azure") then
         let parts = name.Split([|':'|])
         if parts.Length < 2 then invalidArg "name" (sprintf "Not a valid Azure table sink name: %s" name)
