@@ -7,8 +7,6 @@
 azmon
 ======================
 
-Documentation
-
 <div class="row">
   <div class="span1"></div>
   <div class="span6">
@@ -20,18 +18,34 @@ Documentation
   <div class="span1"></div>
 </div>
 
-Example
--------
+Azmon provides a clean, configurable way to publish Event Tracing for Windows (ETW) events to remote locations.
 
-This example demonstrates using a function defined in this sample library.
+Azmon is primarily intended for monitoring machines in an Azure deployment, but should work fine on any Windows machine.
 
-*)
-#r "azmon.dll"
-open azmon
+On every machine in your deployment, run `azmon.exe`. On your aggregators (you may have as many as you like) run `azmons.exe`.
 
-printfn "hello = %i" <| Library.hello 0
+To see the events in your aggregators, either connect to one through your browser or point `azmonc.exe` to one. `azmonc` will
+dump events to the console.
 
-(**
+## How to use it
+
+    $ azmon.exe
+
+            --source <string>: Publish events from a named ETW event source. Allowed: event provider names, 'stdout', 'clr'. May occur multiple times
+            --sink <string>: 'HTTP URLs, or 'role:InstanceName' for Azure roles, or 'stdout'. No sources means logging to stdout. May occur multiple times.'
+            --stop: Stop listening to events (affects ALL running azmon processes). If present, other parameters are ignored.
+            --help [-h|/h|/help|/?]: display this list of options.
+
+    $ azmons.exe
+
+           --port <int>: Listen on a particular port. Defaults to 8080
+           --help [-h|/h|/help|/?]: display this list of options.
+
+    $ src/azmonc/bin/Debug/azmonc --help
+
+            --server <string>: HTTP/S URI of Azmon server
+            --help [-h|/h|/help|/?]: display this list of options.
+
 Some more info
 
 Samples & documentation
