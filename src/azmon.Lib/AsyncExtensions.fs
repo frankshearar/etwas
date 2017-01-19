@@ -12,26 +12,6 @@ type private Completed<'T>(value : 'T) =
 exception private Timeout
 
 type Async with
-    static member CancelAfter timeout (f : Async<'T>) =
-        let econt e = Async.FromContinuations(fun (_,econt,_) -> econt e)
-        let worker = async {
-            let! r = f
-            return! econt <| Completed(r)
-        }
-        let timer = async {
-            do! Async.Sleep timeout
-            return! econt Timeout
-        }
-
-        async {
-            try
-                let! _ = Async.Parallel [worker ; timer]
-                return failwith "unreachable exception reached."
-            with
-            | :? Completed<'T> as t -> return Some t.Value
-            | Timeout -> return None
-        }
-
     static member CancelAfterWithCleanup timeout (action: (_ -> unit)) (f : Async<'T>) =
         let econt e = Async.FromContinuations(fun (_,econt,_) -> econt e)
         let worker = async {
@@ -51,6 +31,10 @@ type Async with
             | :? Completed<'T> as t -> return Some t.Value
             | Timeout -> action(); return None
         }
+
+    static member CancelAfter timeout (f : Async<'T>) =
+        Async.CancelAfterWithCleanup timeout (fun _ -> ()) f
+
 // =====================================
 
 open System.Threading.Tasks

@@ -55,11 +55,15 @@
     <Compile Include="AssertPortTests.fs" />
     <Compile Include="ConsoleTests.fs" />
     <None Include="paket.references" />
+    <Content Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <Private>True</Private>
+    </Reference>
+    <Reference Include="Nowin">
+      <HintPath>..\..\packages\Nowin\lib\net45\Nowin.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\packages\NUnit.Runners\tools\nunit.framework.dll</HintPath>
