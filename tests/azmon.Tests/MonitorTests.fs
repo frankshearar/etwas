@@ -11,6 +11,14 @@ open System.Threading.Tasks
 let uniqueName(): string =
     System.Guid.NewGuid.ToString()
 
+type LoggingDisposable(inner: IDisposable) =
+    interface IDisposable with
+        override __.Dispose() =
+            printfn "Disposing a %s" (inner.GetType().Name)
+            inner.Dispose()
+
+let log x = new LoggingDisposable(x)
+
 [<Test>]
 let ``can monitor multiple event sources``() =
     let pingName = Ping.PingEventSource.GetName(typeof<Ping.PingEventSource>)
@@ -24,6 +32,7 @@ let ``can monitor multiple event sources``() =
                                                     spottedPing.TrySetResult(true) |> ignore
                                                 else
                                                     spottedPong.TrySetResult(true) |> ignore)
+                 |> log
     Ping.ping.Ping()
     Pong.pong.Pong()
     async {
@@ -47,7 +56,8 @@ let ``can monitor multiple event sources``() =
 let ``can start and stop monitoring``() =
     let pingName = Ping.PingEventSource.GetName(typeof<Ping.PingEventSource>)
     let spotted = ref false
-    use monitoring = Monitor.start (uniqueName()) [pingName]
+    let monitoring = Monitor.start (uniqueName()) [pingName]
+    use logger = log monitoring
     Assert.False(monitoring.Clr)
     use events = Observable.subscribe (fun _ ->
                                            spotted := true) monitoring.Subject
@@ -64,7 +74,8 @@ let ``can start and stop monitoring``() =
 [<Test>]
 let ``can monitor CLR events``() =
     let spotted = ref false
-    use monitoring = Monitor.start (uniqueName()) ["clr"]
+    let monitoring = Monitor.start (uniqueName()) ["clr"]
+    use logger = log monitoring
     Assert.That(monitoring.Clr)
     use events = Observable.subscribe (fun _ ->
                                            spotted := true) monitoring.Subject

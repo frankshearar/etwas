@@ -35,7 +35,7 @@ let summary = "Publish ETW events to all the places."
 
 // Longer description of the project
 // (used as a description for NuGet package; line breaks are automatically cleaned up)
-let description = "A command line utility that lets you publish ETW events over HTTP."
+let description = "A set of command line utilities that lets you publish ETW events over HTTP."
 
 // List of author names (for NuGet package)
 let authors = [ "Frank Shearar" ]
