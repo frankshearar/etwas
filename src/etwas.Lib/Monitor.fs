@@ -45,7 +45,7 @@ let private startSession (source: ETWTraceEventSource) =
     } |> Async.Start
 
 // Stop monitoring. This disposes the event session in the OS, so will stop receiving
-// events for all running azmon processes on this machine. Further, you
+// events for all running etwas processes on this machine. Further, you
 // will not collect events in the session until you call start again.
 let stopSessionByName name =
     let sess = new TraceEventSession(name, null)
@@ -55,7 +55,7 @@ let createSession name withClr =
     let subject = new Subject<_>()
     let sess = new TraceEventSession(name, null)
     // Persist the session past process death. This means
-    // a) if you quickly restart azmon, you lose no data;
+    // a) if you quickly restart etwas, you lose no data;
     // b) the kernel will buffer up to 64MB.
     sess.StopOnDispose <- false
     let source = new ETWTraceEventSource(name, TraceEventSourceType.Session)
@@ -71,7 +71,7 @@ let createSession name withClr =
 // providers (event source names), and every time we pick up a message, we
 // push it to the returned IObservable.
 //
-// This ETW session is shared across all running azmon processes. The Session
+// This ETW session is shared across all running etwas processes. The Session
 // instance returned will stop sending events when it is Dispose()d.
 let start name (names: string list) =
     let clr  = List.exists (fun x -> x = "clr") names
@@ -81,7 +81,7 @@ let start name (names: string list) =
     sess
 
 // Stop monitoring. This disposes the event session, so will stop receiving
-// events for all running azmon processes on this machine. Further, you
+// events for all running etwas processes on this machine. Further, you
 // will not collect events in the session until you call start again.
 let stop (session: Session) =
     let r = session.Trace.Stop(noThrow = true)

@@ -7,12 +7,12 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>4b010af6-71d6-4b27-ad74-bd7ef4ddcd82</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>azmon</RootNamespace>
-    <AssemblyName>azmon</AssemblyName>
+    <RootNamespace>etwas</RootNamespace>
+    <AssemblyName>etwas</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
-    <Name>azmon</Name>
+    <Name>etwas</Name>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -23,7 +23,7 @@
     <OutputPath>.\bin\Debug</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>.\bin\Debug\azmon.xml</DocumentationFile>
+    <DocumentationFile>.\bin\Debug\etwas.xml</DocumentationFile>
     <StartArguments>--source Ping --sink http://localhost:8080/</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -33,7 +33,7 @@
     <OutputPath>.\bin\Release</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>.\bin\Release\azmon.xml</DocumentationFile>
+    <DocumentationFile>.\bin\Release\etwas.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.AspNet.SignalR.Client">
@@ -78,8 +78,8 @@
     <None Include="paket.template" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\azmon.Lib\azmon.Lib.fsproj">
-      <Name>azmon.Lib</Name>
+    <ProjectReference Include="..\etwas.Lib\etwas.Lib.fsproj">
+      <Name>etwas.Lib</Name>
       <Project>{586bec3a-51c2-4e91-a148-73fdc6aeb9d6}</Project>
       <Private>True</Private>
     </ProjectReference>

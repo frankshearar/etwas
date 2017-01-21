@@ -4,11 +4,11 @@ owners
 authors 
     Frank Shearar
 projectUrl
-    http://github.com/frankshearar/azmon
+    http://github.com/frankshearar/etwas
 iconUrl
-    https://raw.githubusercontent.com/frankshearar/azmon/master/docs/files/img/logo.png
+    https://raw.githubusercontent.com/frankshearar/etwas/master/docs/files/img/logo.png
 licenseUrl
-    http://github.com/frankshearar/azmon/blob/master/LICENSE.txt
+    http://github.com/frankshearar/etwas/blob/master/LICENSE.txt
 requireLicenseAcceptance
     false
 copyright

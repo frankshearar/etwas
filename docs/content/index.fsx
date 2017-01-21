@@ -4,46 +4,46 @@
 #I "../../bin"
 
 (**
-azmon
+etwas
 ======================
 
 <div class="row">
   <div class="span1"></div>
   <div class="span6">
     <div class="well well-small" id="nuget">
-      The azmon library can be <a href="https://nuget.org/packages/azmon">installed from NuGet</a>:
-      <pre>PM> Install-Package azmon</pre>
+      The etwas library can be <a href="https://nuget.org/packages/etwas">installed from NuGet</a>:
+      <pre>PM> Install-Package etwas</pre>
     </div>
   </div>
   <div class="span1"></div>
 </div>
 
-Azmon provides a clean, configurable way to publish Event Tracing for Windows (ETW) events to remote locations.
+Etwas provides a clean, configurable way to publish Event Tracing for Windows (ETW) events to remote locations.
 
-Azmon is primarily intended for monitoring machines in an Azure deployment, but should work fine on any Windows machine.
+Etwas is primarily intended for monitoring machines in an Azure deployment, but should work fine on any Windows machine.
 
-On every machine in your deployment, run `azmon.exe`. On your aggregators (you may have as many as you like) run `azmons.exe`.
+On every machine in your deployment, run `etwas.exe`. On your aggregators (you may have as many as you like) run `etwass.exe`.
 
-To see the events in your aggregators, either connect to one through your browser or point `azmonc.exe` to one. `azmonc` will
+To see the events in your aggregators, either connect to one through your browser or point `etwasc.exe` to one. `etwasc` will
 dump events to the console.
 
 ## How to use it
 
-    $ azmon.exe
+    $ etwas.exe
 
             --source <string>: Publish events from a named ETW event source. Allowed: event provider names, 'stdout', 'clr'. May occur multiple times
             --sink <string>: 'HTTP URLs, or 'role:InstanceName' for Azure roles, or 'stdout'. No sources means logging to stdout. May occur multiple times.'
-            --stop: Stop listening to events (affects ALL running azmon processes). If present, other parameters are ignored.
+            --stop: Stop listening to events (affects ALL running etwas processes). If present, other parameters are ignored.
             --help [-h|/h|/help|/?]: display this list of options.
 
-    $ azmons.exe
+    $ etwass.exe
 
            --port <int>: Listen on a particular port. Defaults to 8080
            --help [-h|/h|/help|/?]: display this list of options.
 
-    $ src/azmonc/bin/Debug/azmonc --help
+    $ src/etwasc/bin/Debug/etwasc --help
 
-            --server <string>: HTTP/S URI of Azmon server
+            --server <string>: HTTP/S URI of Etwas server
             --help [-h|/h|/help|/?]: display this list of options.
 
 Some more info
@@ -73,9 +73,9 @@ The library is available under the MIT license, which allows modification and
 redistribution for both commercial and non-commercial purposes. For more information see the
 [License file][license] in the GitHub repository.
 
-  [content]: https://github.com/fsprojects/azmon/tree/master/docs/content
-  [gh]: https://github.com/fsprojects/azmon
-  [issues]: https://github.com/fsprojects/azmon/issues
-  [readme]: https://github.com/fsprojects/azmon/blob/master/README.md
-  [license]: https://github.com/fsprojects/azmon/blob/master/LICENSE.txt
+  [content]: https://github.com/fsprojects/etwas/tree/master/docs/content
+  [gh]: https://github.com/fsprojects/etwas
+  [issues]: https://github.com/fsprojects/etwas/issues
+  [readme]: https://github.com/fsprojects/etwas/blob/master/README.md
+  [license]: https://github.com/fsprojects/etwas/blob/master/LICENSE.txt
 *)
