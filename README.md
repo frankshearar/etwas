@@ -1,36 +1,36 @@
-# Azmon
+# Etwas
 
-Azmon provides a clean, configurable way to publish Event Tracing for Windows (ETW) events to remote locations.
+Etwas provides a clean, configurable way to publish Event Tracing for Windows (ETW) events to remote locations.
 
-Azmon is primarily intended for monitoring machines in an Azure deployment, but should work fine on any Windows machine.
+Etwas is primarily intended for monitoring machines in an Azure deployment, but should work fine on any Windows machine.
 
-On every machine in your deployment, run `azmon.exe`. On your aggregators (you may have as many as you like) run `azmons.exe`.
+On every machine in your deployment, run `etwas.exe`. On your aggregators (you may have as many as you like) run `etwass.exe` ("s" for "server").
 
-To see the events in your aggregators, either connect to one through your browser or point `azmonc.exe` to one. `azmonc` will
+To see the events in your aggregators, either connect to one through your browser or point `etwasc.exe` ("c" for "client") to one. `etwasc` will
 dump events to the console.
 
 ## How to use it
 
-    $ azmon.exe
-    
-            --source <string>: Publish events from a named ETW event source. Allowed: event provider names, 'stdout', 'clr'. May occur multiple times
-            --sink <string>: 'HTTP URLs, or 'role:InstanceName' for Azure roles, or 'stdout'. No sources means logging to stdout. May occur multiple times.'
-            --stop: Stop listening to events (affects ALL running azmon processes). If present, other parameters are ignored.
+    $ etwas.exe
+
+            --source <string>: Publish events from a named ETW event source. Allowed: event provider names, 'stdout', 'clr'. May occur multiple times.
+            --sink <string>: 'HTTP URLs, or 'role:InstanceName' for Azure roles, or 'stdout'. No sources means logging to stdout. May occur multiple times.
+            --stop: Stop listening to events (affects ALL running etwas processes). If present, other parameters are ignored.
             --help [-h|/h|/help|/?]: display this list of options.
 
-    $ azmons.exe
-    
+    $ etwass.exe
+
            --port <int>: Listen on a particular port. Defaults to 8080
            --help [-h|/h|/help|/?]: display this list of options.
 
-    $ src/azmonc/bin/Debug/azmonc --help
-    
-            --server <string>: HTTP/S URI of Azmon server
+    $ etwasc
+
+            --server <string>: HTTP/S URI of Etwas server
             --help [-h|/h|/help|/?]: display this list of options.
 
 ## TODO
 
-* Keep azmon.exe running when azmons.exe quits. (Or, handle server disconnects gracefully.)
+* Keep etwas.exe running when etwass.exe quits. (Or, handle server disconnects gracefully.)
 * Remove hardcoded "event" SignalR hub in the client.
 * UI, so you can see events in your browser.
 * "Raw" connection for console your own sinks off the aggregated logging.
@@ -41,16 +41,16 @@ dump events to the console.
 
 ## Technical details
 
-Azmon starts an ETW trace session, and whenever it sees events, uses [SignalR](http://signalr.net/) to publish events to the aggregators.
+Etwas starts an ETW trace session, and whenever it sees events, uses [SignalR](http://signalr.net/) to publish events to the aggregators.
 
 In turn the aggregators use SignalR to publish these chunks of XML to your browser, or any other kind of connected client.
 
 ## Testing
 
-Azmon also contains a load/smoke test event producer, Ping.exe. If you want to run an end-to-end test to verify azmon's overall operation,
+Etwas also contains a load/smoke test event producer, Ping.exe. If you want to run an end-to-end test to verify etwas's overall operation,
 
-* start azmons.exe
-* start azmon.exe with something like `azmon --source Ping --sink stdout --sink http://localhost:8080/`
+* start etwass.exe
+* start etwas.exe with something like `etwas --source Ping --sink stdout --sink http://localhost:8080/`
 * connect to [http://localhost:8080/](http://localhost:8080/) with your browser
 * start ping.exe
 * You should now see a new Ping event arriving in your browser at about 1 event/s.
@@ -58,7 +58,7 @@ Azmon also contains a load/smoke test event producer, Ping.exe. If you want to r
 Full details on how to control Ping:
 
     $ Ping.exe --help
-    
+
             --rate <int64>: (Estimated) events published per second. Default: 1 event/s
             --help [-h|/h|/help|/?]: display this list of options.
 
@@ -66,4 +66,4 @@ Full details on how to control Ping:
 
 ## Maintainer(s)
 
-- Frank Shearar ([frsheara@microsoft.com](mailto:frsheara@microsoft.com))
+- Frank Shearar ([frank.shearar@gmail.com](mailto:frank.shearar@gmail.com))

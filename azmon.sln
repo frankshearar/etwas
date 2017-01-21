@@ -10,7 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{63297B
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{A6A6AF7D-D6E3-442D-9B1E-58CC91879BE1}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "azmon", "src\azmon\azmon.fsproj", "{4B010AF6-71D6-4B27-AD74-BD7EF4DDCD82}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "etwas", "src\etwas\etwas.fsproj", "{4B010AF6-71D6-4B27-AD74-BD7EF4DDCD82}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{BF60BC93-E09B-4E5F-9D85-95A519479D54}"
 	ProjectSection(SolutionItems) = preProject
@@ -33,17 +33,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "content", "content", "{8E6D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{ED8079DD-2B06-4030-9F0F-DC548F98E1C4}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "azmon.Tests", "tests\azmon.Tests\azmon.Tests.fsproj", "{73F1DB84-7BDA-49CE-8CB6-66A7101B671C}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "etwas.Tests", "tests\etwas.Tests\etwas.Tests.fsproj", "{73F1DB84-7BDA-49CE-8CB6-66A7101B671C}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "azmon.exe.Tests", "tests\azmon.exe.Tests\azmon.exe.Tests.fsproj", "{E0EE70E7-8986-4865-8937-E1B0766E95D3}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "etwas.exe.Tests", "tests\etwas.exe.Tests\etwas.exe.Tests.fsproj", "{E0EE70E7-8986-4865-8937-E1B0766E95D3}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "azmon.Lib", "src\azmon.Lib\azmon.Lib.fsproj", "{586BEC3A-51C2-4E91-A148-73FDC6AEB9D6}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "etwas.Lib", "src\etwas.Lib\etwas.Lib.fsproj", "{586BEC3A-51C2-4E91-A148-73FDC6AEB9D6}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "azmons", "src\azmons\azmons.fsproj", "{D3574B9B-7F61-4E06-AB05-E6CE0F4CBEA9}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "etwass", "src\etwass\etwass.fsproj", "{D3574B9B-7F61-4E06-AB05-E6CE0F4CBEA9}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Ping", "tests\Ping\Ping.fsproj", "{CA95F537-336C-437C-B364-2B36FAD4F624}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "azmonc", "src\azmonc\azmonc.fsproj", "{647DFA55-5AE3-4995-A7A1-82FD0237E942}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "etwasc", "src\etwasc\etwasc.fsproj", "{647DFA55-5AE3-4995-A7A1-82FD0237E942}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -43,32 +43,32 @@ let sh program args: int * string =
     | Left e ->
         -1, sprintf "FAILED TO START THE PROCESS %A %A (%s)" program args e
 
-let azmon =
+let etwas =
     let cwd = new DirectoryInfo(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory))
     let solnDir = cwd.Parent.Parent.Parent.Parent.FullName
-    Path.Combine(solnDir, @"src\azmon\bin\Debug\azmon.exe")
+    Path.Combine(solnDir, @"src\etwas\bin\Debug\etwas.exe")
 
-let azmons =
+let etwass =
     let cwd = new DirectoryInfo(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory))
     let solnDir = cwd.Parent.Parent.Parent.Parent.FullName
-    Path.Combine(solnDir, @"src\azmons\bin\Debug\azmons.exe")
+    Path.Combine(solnDir, @"src\etwass\bin\Debug\etwass.exe")
 
 [<TestFixture>]
-type Azmon() =
+type Etwas() =
     [<TearDown>]
     member x.``Kill OS trace session``() =
-        sh azmon "--stop" |> ignore
+        sh etwas "--stop" |> ignore
 
     [<Test>]
     member x.``shows usage when run with no args`` () =
-        let exitCode, stdout = sh azmon ""
+        let exitCode, stdout = sh etwas ""
         Assert.That(stdout.Contains("--source"), "No usage displayed in:\n" + stdout)
         Assert.AreEqual(0, exitCode)
 
     [<Test>]
     member x.``closes gracefully on receipt of a ^C``() =
         let processForaBit = async {
-                                let proc = run azmon (sprintf "--source %s" Ping.ping.Name)
+                                let proc = run etwas (sprintf "--source %s" Ping.ping.Name)
                                 try
                                     match proc with
                                     | Right p ->
@@ -87,19 +87,19 @@ type Azmon() =
 
     [<Test>]
      member x.``supports HTTP sinks``() =
-         let proc = run azmons "--source ping --sink http://localhost:8080/"
+         let proc = run etwass "--source ping --sink http://localhost:8080/"
          match proc with
          | Right p ->
              let s = p.StandardOutput.ReadToEnd()
              Assert.False(s.Contains "Unhandled Exception")
-         | Left e -> Assert.Fail(sprintf "Failed to start azmons: %s" (e.ToString()))
+         | Left e -> Assert.Fail(sprintf "Failed to start etwass: %s" (e.ToString()))
 
     [<Test>]
     member x.``can log events out-of-process``() =
         // This will ensure we have at least one interesting event.
         Ping.ping.Ping()
         let processForaBit = async {
-                                let proc = run azmon (sprintf "--source %s" Ping.ping.Name)
+                                let proc = run etwas (sprintf "--source %s" Ping.ping.Name)
                                 match proc with
                                 | Right p ->
                                     let output = new StringBuilder()
@@ -123,15 +123,15 @@ type Azmon() =
     [<Test>]
     member x.``stops session gracefully``() =
         // Actually this test just shows that we don't barf when asked to --stop.
-        let exitCode, _ = sh azmon "--stop"
+        let exitCode, _ = sh etwas "--stop"
         Assert.AreEqual(0, exitCode)
 
 [<TestFixture>]
-type Azmons() =
+type Etwass() =
     [<Test>]
     member x.``closes gracefully on receipt of a ^C``() =
         let processForaBit = async {
-                                let proc = run azmons "--port 8080" // TODO: Remove hard-coded port
+                                let proc = run etwass "--port 8080" // TODO: Remove hard-coded port
                                 try
                                     match proc with
                                     | Right p ->
@@ -150,7 +150,7 @@ type Azmons() =
 
     [<Test>]
     member x.``starts listening on specified port``() =
-        let proc = run azmons "--port 8081"
+        let proc = run etwass "--port 8081"
         try
             System.Threading.Thread.Sleep(TimeSpan.FromSeconds 1.0) // It takes as long as this to actually spin up the process and register the socket!
             match run "netstat" "-anp TCP" with
@@ -169,11 +169,11 @@ type Azmons() =
 
     [<Test>]
     member x.``shows usage when asked``() =
-        let proc = run azmons "--help"
+        let proc = run etwass "--help"
         match proc with
         | Right p ->
             let s = p.StandardOutput.ReadToEnd()
             Assert.That(s, Contains.Substring("--help"))
             Assert.That(s, Contains.Substring("--port"))
             Assert.AreEqual(0, p.ExitCode)
-        | Left e -> Assert.Fail(sprintf "Failed to start azmons: %s" (e.ToString()))
+        | Left e -> Assert.Fail(sprintf "Failed to start etwass: %s" (e.ToString()))

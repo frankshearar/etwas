@@ -11,9 +11,9 @@ let counters = [|
                |]
 
 let installCounters() =
-    if PerformanceCounterCategory.Exists("azmon Stats") then
-        PerformanceCounterCategory.Delete("azmon Stats")
-    PerformanceCounterCategory.Create("azmon Stats",
+    if PerformanceCounterCategory.Exists("etwas Stats") then
+        PerformanceCounterCategory.Delete("etwas Stats")
+    PerformanceCounterCategory.Create("etwas Stats",
                                       "",
                                       PerformanceCounterCategoryType.MultiInstance,
                                       new CounterCreationDataCollection(counters))
@@ -22,7 +22,7 @@ let installCounters() =
 let createCounter name =
     try
         let curProc = Process.GetCurrentProcess()
-        Some (new PerformanceCounter("azmon Stats", name, curProc.Id.ToString(), false))
+        Some (new PerformanceCounter("Etwas Stats", name, curProc.Id.ToString(), false))
     with ex ->
         printfn "Warning: failed to initialise counter \"%s\". Error: %s" name (ex.ToString())
         None

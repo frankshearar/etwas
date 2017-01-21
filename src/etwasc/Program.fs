@@ -1,16 +1,16 @@
-﻿module azmonc
+﻿module etwasc
 
 open Nessos.UnionArgParser
 open System
 open System.Threading
 
 type Arguments =
-    | [<Mandatory>] Server of string // A running Azmon server's absolute HTTP URI
+    | [<Mandatory>] Server of string // A running Etwas server's absolute HTTP URI
     with
     interface IArgParserTemplate with
         member s.Usage =
             match s with
-            | Server _ -> "HTTP/S URI of Azmon server"
+            | Server _ -> "HTTP/S URI of Etwas server"
 
 let parser = UnionArgParser.Create<Arguments>()
 let usage = parser.Usage()
@@ -23,7 +23,7 @@ let registerExitOnCtrlC (canceller: CancellationTokenSource) =
     |> ignore
 
 [<EntryPoint>]
-let main argv = 
+let main argv =
     try
         let args = parser.Parse (argv, raiseOnUsage = false, ignoreMissing = true)
         if args.IsUsageRequested then

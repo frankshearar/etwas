@@ -1,4 +1,4 @@
-module azmon
+module etwas
 
 open Nessos.UnionArgParser
 open System
@@ -16,7 +16,7 @@ with
             match s with
             | Source _ -> "Publish events from a named ETW event source. Allowed: event provider names, 'clr'. May occur multiple times."
             | Sink _   -> "HTTP URLs, or 'role:InstanceName' for Azure roles, or 'stdout'. No sources means logging to stdout. May occur multiple times."
-            | Stop     -> "Stop listening to events (affects ALL running azmon processes). If present, other parameters are ignored."
+            | Stop     -> "Stop listening to events (affects ALL running etwas processes). If present, other parameters are ignored."
             | Debug    -> "Print debug information"
             | Install_Counters -> "Install performance counters"
 
@@ -27,7 +27,7 @@ let registerExitOnCtrlC (canceller: CancellationTokenSource) session =
     Console.CancelKeyPress
     |> Observable.subscribe (fun _ ->
         // Like tears in rain... time to die.
-        // We _do not_ close the trace session: call azmon --stop to do that.
+        // We _do not_ close the trace session: call etwas --stop to do that.
         Monitor.stop session |> ignore
         canceller.Cancel())
     |> ignore
@@ -48,7 +48,7 @@ let main argv =
                 Counter.installCounters()
                 0
             else if args.Contains <@ Stop @> then
-                Monitor.stopSessionByName "Azmon-Trace-Session" |> ignore
+                Monitor.stopSessionByName "Etwas-Trace-Session" |> ignore
                 0
             else
                 let receiveCounter = Counter.createCounter "ETW Receive messages per second"
@@ -57,7 +57,7 @@ let main argv =
                 let canceller = new CancellationTokenSource()
                 let msgCount = ref 0L
 
-                let monitoring = Monitor.start "Azmon-Trace-Session" (args.GetResults <@ Source @>)
+                let monitoring = Monitor.start "Etwas-Trace-Session" (args.GetResults <@ Source @>)
 
                 use countEvents = monitoring.Subject
                                   |> Observable.subscribe (fun _ ->

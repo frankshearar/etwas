@@ -7,12 +7,12 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>d3574b9b-7f61-4e06-ab05-e6ce0f4cbea9</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>azmons</RootNamespace>
-    <AssemblyName>azmons</AssemblyName>
+    <RootNamespace>etwass</RootNamespace>
+    <AssemblyName>etwass</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
-    <Name>azmons</Name>
+    <Name>etwass</Name>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -24,7 +24,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Debug\azmons.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\etwass.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -35,7 +35,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Release\azmons.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\etwass.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
@@ -129,8 +129,8 @@
     <Reference Include="UnionArgParser">
       <HintPath>..\..\packages\UnionArgParser\lib\net40\UnionArgParser.dll</HintPath>
     </Reference>
-    <ProjectReference Include="..\azmon.Lib\azmon.Lib.fsproj">
-      <Name>azmon.Lib</Name>
+    <ProjectReference Include="..\etwas.Lib\etwas.Lib.fsproj">
+      <Name>etwas.Lib</Name>
       <Project>{586bec3a-51c2-4e91-a148-73fdc6aeb9d6}</Project>
       <Private>True</Private>
     </ProjectReference>

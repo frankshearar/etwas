@@ -65,8 +65,8 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\azmon.Tests\azmon.Tests.fsproj">
-      <Name>azmon.Tests</Name>
+    <ProjectReference Include="..\etwas.Tests\etwas.Tests.fsproj">
+      <Name>etwas.Tests</Name>
       <Project>{73f1db84-7bda-49ce-8cb6-66a7101b671c}</Project>
       <Private>True</Private>
     </ProjectReference>
@@ -87,7 +87,7 @@
     </Otherwise>
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
