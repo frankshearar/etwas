@@ -1,43 +1,45 @@
 NUGET
-  remote: https://nuget.org/api/v2
-  specs:
-    Dynamitey (1.0.2.0)
+  remote: https://www.nuget.org/api/v2
+    Dynamitey (1.0.2)
     EnterpriseLibrary.SemanticLogging (2.0.1406.1)
       Newtonsoft.Json (>= 5.0.8)
+    EnterpriseLibrary.SemanticLogging.WindowsAzure (2.0.1406.1)
+      EnterpriseLibrary.SemanticLogging (>= 2.0.1406.1)
+      WindowsAzure.Storage (>= 3.0.2)
     FAKE (3.35.1)
     FSharp.Compiler.Service (0.0.89)
     FSharp.Core (4.0.0.1)
-    FSharp.Formatting (2.8.0)
+    FSharp.Formatting (2.8)
       FSharp.Compiler.Service (>= 0.0.86)
-      FSharpVSPowerTools.Core (>= 1.7.0)
-    FSharp.Interop.Dynamic (3.0.0)
-      Dynamitey (>= 1.0.2.0)
+      FSharpVSPowerTools.Core (>= 1.7)
+    FSharp.Interop.Dynamic (3.0)
+      Dynamitey (>= 1.0.2)
       FSharp.Core (>= 3.1.2.1)
-    FSharpVSPowerTools.Core (1.7.0)
+    FSharpVSPowerTools.Core (1.7)
       FSharp.Compiler.Service (>= 0.0.81)
     FsPickler (1.2.9)
-    Microsoft.AspNet.SignalR.Client (2.2.0)
-      Microsoft.Net.Http (>= 2.2.28) - framework: wpv8.1, portable-net45+sl50+win+wp80+wp81
-      Newtonsoft.Json (>= 6.0.4) - framework: wpv8.1, portable-net45+sl50+win+wp80+wp81, >= net40
-    Microsoft.AspNet.SignalR.Core (2.2.0)
-      Microsoft.Owin (>= 2.1.0)
-      Microsoft.Owin.Security (>= 2.1.0)
+    Microsoft.AspNet.SignalR.Client (2.2)
+      Microsoft.Net.Http (>= 2.2.28) - framework: portable-net45+sl50+win+wp80+wp81, wpav8.1
+      Newtonsoft.Json (>= 6.0.4) - framework: >= net40, portable-net45+sl50+win+wp80+wp81, wpav8.1
+    Microsoft.AspNet.SignalR.Core (2.2)
+      Microsoft.Owin (>= 2.1)
+      Microsoft.Owin.Security (>= 2.1)
       Newtonsoft.Json (>= 6.0.4)
       Owin (>= 1.0)
     Microsoft.AspNet.SignalR.Owin (1.2.2)
       Microsoft.AspNet.SignalR.Core (>= 1.2.2)
       Owin (>= 1.0)
-    Microsoft.Bcl (1.1.10)
+    Microsoft.Bcl (1.1.10) - framework: net10, net11, net20, net30, net35, net40, net40-full, portable-net45+sl50+win+wp80+wp81, wpav8.1
       Microsoft.Bcl.Build (>= 1.0.14)
-    Microsoft.Bcl.Build (1.0.21) - import_targets: false
-    Microsoft.Data.Edm (5.6.4) - framework: winv4.5, wpv8.1, wpv8.0, >= net40
-    Microsoft.Data.OData (5.6.4) - framework: winv4.5, wpv8.1, wpv8.0, >= net40
+    Microsoft.Bcl.Build (1.0.21) - import_targets: false, framework: net10, net11, net20, net30, net35, net40, net40-full, portable-net45+sl50+win+wp80+wp81, wpav8.1
+    Microsoft.Data.Edm (5.6.4) - framework: >= net40, winv4.5, wpv8.0, wpav8.1
+    Microsoft.Data.OData (5.6.4) - framework: >= net40, winv4.5, wpv8.0, wpav8.1
       Microsoft.Data.Edm (5.6.4)
       System.Spatial (5.6.4)
     Microsoft.Data.Services.Client (5.6.4) - framework: >= net40
       Microsoft.Data.OData (5.6.4)
     Microsoft.Diagnostics.Tracing.TraceEvent (1.0.32)
-    Microsoft.Net.Http (2.2.29)
+    Microsoft.Net.Http (2.2.29) - framework: net10, net11, net20, net30, net35, net40, net40-full, portable-net45+sl50+win+wp80+wp81, wpav8.1
       Microsoft.Bcl (>= 1.1.10)
       Microsoft.Bcl.Build (>= 1.0.14)
     Microsoft.Owin (3.0.1)
@@ -50,20 +52,20 @@ NUGET
       Microsoft.Owin (>= 3.0.1)
       Owin (>= 1.0)
     Microsoft.Tpl.Dataflow (4.5.24)
-    Microsoft.WindowsAzure.ConfigurationManager (3.1.0) - framework: >= net40
-    Nancy (1.2.0)
-    Nancy.Hosting.Self (1.2.0)
-      Nancy (>= 1.2.0)
-    Nancy.Owin (1.2.0)
-      Nancy (>= 1.2.0)
+    Microsoft.WindowsAzure.ConfigurationManager (3.1) - framework: >= net40
+    Nancy (1.2)
+    Nancy.Hosting.Self (1.2)
+      Nancy (>= 1.2)
+    Nancy.Owin (1.2)
+      Nancy (>= 1.2)
       Owin (>= 1.0)
     Newtonsoft.Json (7.0.1)
-    Nowin (0.20.0.0)
+    Nowin (0.20)
     NUnit (2.6.4)
     NUnit.Runners (2.6.4)
-    Octokit (0.12.0)
-      Microsoft.Net.Http
-    Owin (1.0.0)
+    Octokit (0.24)
+      Microsoft.Net.Http  - framework: net10, net11, net20, net30, net35, net40, net40-full
+    Owin (1.0)
     Rx-Core (2.2.5)
       Rx-Interfaces (>= 2.2.5)
     Rx-Interfaces (2.2.5)
@@ -78,16 +80,15 @@ NUGET
     Rx-PlatformServices (2.2.5)
       Rx-Core (>= 2.2.5)
       Rx-Interfaces (>= 2.2.5)
-    SourceLink.Fake (0.5.0)
-    System.Spatial (5.6.4) - framework: winv4.5, wpv8.1, wpv8.0, >= net40
+    SourceLink.Fake (0.5)
+    System.Spatial (5.6.4) - framework: >= net40, winv4.5, wpv8.0, wpav8.1
     UnionArgParser (0.8.7)
-    WindowsAzure.Storage (4.3.0)
-      Microsoft.Data.OData (>= 5.6.2) - framework: winv4.5, wpv8.1, wpv8.0, >= net40
+    WindowsAzure.Storage (4.3)
+      Microsoft.Data.OData (>= 5.6.2) - framework: >= net40, winv4.5, wpv8.0, wpav8.1
       Microsoft.Data.Services.Client (>= 5.6.2) - framework: >= net40
-      Microsoft.WindowsAzure.ConfigurationManager (>= 1.8.0.0) - framework: >= net40
-      Newtonsoft.Json (>= 5.0.8) - framework: wpv8.0, >= net40
+      Microsoft.WindowsAzure.ConfigurationManager (>= 1.8) - framework: >= net40
+      Newtonsoft.Json (>= 5.0.8) - framework: >= net40, wpv8.0
 GITHUB
   remote: fsharp/FAKE
-  specs:
-    modules/Octokit/Octokit.fsx (35561a758d7a299e57832375cad11ad6213e70c8)
-      Octokit
+    modules/Octokit/Octokit.fsx (805ca9420e0234fe2ac8fe2033f28faeec2ebb40)
+      Octokit (>= 0.20)
