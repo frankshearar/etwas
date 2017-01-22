@@ -144,7 +144,7 @@ let tableNameFrom (s: string) =
     let pieces = s.Split([|";"|], StringSplitOptions.RemoveEmptyEntries)
     let keyValues = pieces |> Array.filter (fun v -> v.ToLower().StartsWith("tablename"))
     if Array.isEmpty keyValues then
-        "Azmon" // Default to an egotistical name.
+        "Etwas" // Default to an egotistical name.
     else
         let keyValue = Array.get keyValues 0
         let bits = keyValue.Split([|'='|])
