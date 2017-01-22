@@ -31,6 +31,7 @@ dump events to the console.
 ## TODO
 
 * Keep etwas.exe running when etwass.exe quits. (Or, handle server disconnects gracefully.)
+* Revisit the way we register sinks - users don't want to have nuget dependencies on ALL THE TYPES
 * Remove hardcoded "event" SignalR hub in the client.
 * UI, so you can see events in your browser.
 * "Raw" connection for console your own sinks off the aggregated logging.
