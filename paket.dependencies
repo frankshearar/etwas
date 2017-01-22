@@ -1,9 +1,8 @@
 source https://nuget.org/api/v2
 
 nuget EnterpriseLibrary.SemanticLogging 2.0.1406.1
-nuget FAKE
+nuget EnterpriseLibrary.SemanticLogging.WindowsAzure 2.0.1406.1
 nuget FsPickler
-nuget FSharp.Formatting 2.8.0
 nuget FSharp.Interop.Dynamic 3.0.0
 nuget FSharpVSPowerTools.Core 1.7.0
 nuget Microsoft.AspNet.SignalR.Client
@@ -16,13 +15,23 @@ nuget Nancy
 nuget Nancy.Hosting.Self
 nuget Nancy.Owin
 nuget Nowin
-nuget NUnit
-nuget NUnit.Runners
 nuget Microsoft.Diagnostics.Tracing.TraceEvent
 nuget Owin
 nuget Rx-Main
-nuget SourceLink.Fake
 nuget UnionArgParser
 nuget WindowsAzure.Storage 4.3.0
 
-github fsharp/FAKE modules/Octokit/Octokit.fsx
+group Build
+  source https://nuget.org/api/v2
+
+  nuget SourceLink.Fake
+  nuget FAKE
+  nuget FSharp.Formatting
+
+  github fsharp/FAKE modules/Octokit/Octokit.fsx
+
+group Test
+  source https://nuget.org/api/v2
+
+  nuget NUnit ~> 2
+  nuget NUnit.Runners ~> 2
