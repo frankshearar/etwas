@@ -131,9 +131,10 @@ let ``connectionStringFrom parses out connection string``(name) =
 let ``tableNamefrom parses out table name``(name) =
     Assert.AreEqual("tablename", (Publish.tableNameFrom name))
 
-[<TestCase("DefaultEndpointsProtocol=https;AccountName=storageaccountname;AccountKey=fakebase64;TableName=tablename")>]
+[<TestCase("azureDefaultEndpointsProtocol=https;AccountName=storageaccountname;AccountKey=fakebase64;TableName=tablename")>]
+[<TestCase("azure")>]
 let ``resolveSinkFailsForInvalidAzureName``(brokenName) =
-    Assert.Throws<ArgumentException>(fun () -> Publish.start [brokenName] (constantly None) true (new Subject<_>()) |> ignore)
+    Assert.Throws<ArgumentException>(fun () -> Publish.start [brokenName] (constantly None) true (new Subject<_>()) |> ignore) |> ignore
 
 [<TestCase("azure:UseDevelopmentStorage=true;TableName=tablename")>]
 let ``resolveSinkPassesForValidAzureName``(workingName) =
