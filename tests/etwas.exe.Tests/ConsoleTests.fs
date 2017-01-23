@@ -156,11 +156,10 @@ type Etwass() =
             match run "netstat" "-anp TCP" with
             | Right p ->
                 let output = p.StandardOutput.ReadToEnd()
-                output.Split([|"\r\n"|], StringSplitOptions.RemoveEmptyEntries)
-                |> Array.filter (fun s -> s.Contains "LISTENING")
-                |> Array.filter (fun s -> s.Contains "8081")
-                |> fun s -> s, "Nothing listening"
-                |> Assert.IsNotEmpty
+                let ports = output.Split([|"\r\n"|], StringSplitOptions.RemoveEmptyEntries)
+                            |> Array.filter (fun s -> s.Contains "LISTENING")
+                            |> Array.filter (fun s -> s.Contains "8081")
+                CollectionAssert.IsNotEmpty(ports, "Nothing listening")
             | Left e -> Assert.Fail(sprintf "Couldn't run netstat: %s" (e.ToString()))
         finally
         match proc with
