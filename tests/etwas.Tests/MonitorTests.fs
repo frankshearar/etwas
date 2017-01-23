@@ -14,8 +14,10 @@ let uniqueName(): string =
 type LoggingDisposable(inner: IDisposable) =
     interface IDisposable with
         override __.Dispose() =
-            printfn "Disposing a %s" (inner.GetType().Name)
+            let typ = inner.GetType().Name
+            printfn "Disposing a %s" typ
             inner.Dispose()
+            printfn "Disposed a %s" typ
 
 let log x = new LoggingDisposable(x)
 
