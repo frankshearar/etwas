@@ -1,10 +1,10 @@
 source https://nuget.org/api/v2
 
-nuget EnterpriseLibrary.SemanticLogging 2.0.1406.1
-nuget EnterpriseLibrary.SemanticLogging.WindowsAzure 2.0.1406.1
+nuget EnterpriseLibrary.SemanticLogging
+nuget EnterpriseLibrary.SemanticLogging.WindowsAzure
 nuget FsPickler
-nuget FSharp.Interop.Dynamic 3.0.0
-nuget FSharpVSPowerTools.Core 1.7.0
+nuget FSharp.Interop.Dynamic
+nuget FSharpVSPowerTools.Core
 nuget Microsoft.AspNet.SignalR.Client
 nuget Microsoft.AspNet.SignalR.Core
 nuget Microsoft.AspNet.SignalR.Owin
@@ -19,7 +19,7 @@ nuget Microsoft.Diagnostics.Tracing.TraceEvent
 nuget Owin
 nuget Rx-Main
 nuget UnionArgParser
-nuget WindowsAzure.Storage 4.3.0
+nuget WindowsAzure.Storage
 
 group Build
   source https://nuget.org/api/v2
@@ -33,5 +33,5 @@ group Build
 group Test
   source https://nuget.org/api/v2
 
-  nuget NUnit ~> 2
-  nuget NUnit.Runners ~> 2
+  nuget NUnit ~> 3.5
+  nuget NUnit.Runners ~> 3.5
