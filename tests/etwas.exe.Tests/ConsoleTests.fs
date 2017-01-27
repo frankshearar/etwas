@@ -96,29 +96,53 @@ type Etwas() =
 
     [<Test>]
     member x.``can log events out-of-process``() =
-        // This will ensure we have at least one interesting event.
-        Ping.ping.Ping()
+        let started = ref false // We COULD use a ManualSetEvent, but why bother?
+        let found = ref false
+
+        let pinger = async {
+            // Wait for ETWas to have started ETWassing.
+            while not(!started) do
+                do! Async.Sleep 500
+            while not(!found) do
+                do! Async.Sleep 500
+                Ping.ping.Ping()
+            return ""
+        }
+
         let processForaBit = async {
                                 let proc = run etwas (sprintf "--source %s" Ping.ping.Name)
                                 match proc with
                                 | Right p ->
                                     let output = new StringBuilder()
-                                    let error = new StringBuilder()
-                                    p.OutputDataReceived.Add(fun args -> output.Append(args.Data) |> ignore)
-                                    p.ErrorDataReceived.Add(fun args -> error.Append(args.Data) |> ignore)
+                                    p.OutputDataReceived.Add(fun args -> output.AppendLine(args.Data) |> ignore; printfn "s>> %s" args.Data)
+                                    p.ErrorDataReceived.Add( fun args -> output.AppendLine(args.Data) |> ignore; printfn "e>> %s" args.Data)
                                     p.BeginErrorReadLine()
                                     p.BeginOutputReadLine()
-                                    do! Async.Sleep 5000 // Fairly arbitrary pause; seems like out-of-process ETW logging has a latency of ~2 seconds.
+                                    started := true
+                                    // Wait for the Pinger to have Pinged.
+                                    // Yes, this is mildly ridiculous to repeatedly ToString().
+                                    while not(output.ToString().Contains("Event: 2000 (Ping)")) do
+                                        printfn "==="
+                                        printfn "%s" (output.ToString())
+                                        printfn "==="
+                                        printfn "not found. sleeping."
+                                        do! Async.Sleep 500
+                                    printfn "found! killing!"
+                                    found := true
                                     p.Kill()
-                                    return output.Append(error.ToString()).ToString()
+                                    return output.ToString()
                                 | Left e -> return sprintf "Process didn't run? (%s)" e
                              }
-        let stdout = processForaBit |> Async.CancelAfter 6000 |> Async.RunSynchronously
+
+        let stdout = [processForaBit; pinger] |> Async.Parallel |> Async.CancelAfter 30000 |> Async.RunSynchronously
+                     // Because there are multiple Async workflows, we get a seq of strings.
+                     // For ease of debugging, we just bung them all together.
+                     |> Option.map (fun strings -> System.String.Join("\n", strings))
         match stdout with
         | Some s ->
             Assert.IsNotEmpty(s)
             // Not an actual event, this shows we see the advertised metadata of the event source.
-            Assert.That(s.Contains(@"ProviderName=""Ping"""), (sprintf "Ping event source not found in stdout: %s" s))
+            Assert.That(s.Contains("Event: 2000 (Ping)"), (sprintf "Ping event source not found in stdout: %s" s))
         | None -> Assert.Fail("Something went wrong")
     [<Test>]
     member x.``stops session gracefully``() =
