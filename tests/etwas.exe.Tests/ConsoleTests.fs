@@ -43,15 +43,21 @@ let sh program args: int * string =
     | Left e ->
         -1, sprintf "FAILED TO START THE PROCESS %A %A (%s)" program args e
 
+#if DEBUG
+let configuration = "Debug"
+#else
+let configuration = "Release"
+#endif
+
 let etwas =
     let cwd = new DirectoryInfo(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory))
     let solnDir = cwd.Parent.Parent.Parent.Parent.FullName
-    Path.Combine(solnDir, @"src\etwas\bin\Debug\etwas.exe")
+    Path.Combine(solnDir, "src", "etwas", "bin", configuration, "etwas.exe")
 
 let etwass =
     let cwd = new DirectoryInfo(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory))
     let solnDir = cwd.Parent.Parent.Parent.Parent.FullName
-    Path.Combine(solnDir, @"src\etwass\bin\Debug\etwass.exe")
+    Path.Combine(solnDir, "src", "etwass", "bin", configuration, "etwass.exe")
 
 [<TestFixture>]
 type Etwas() =
