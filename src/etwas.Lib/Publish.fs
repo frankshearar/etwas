@@ -14,7 +14,7 @@ open AsyncExtensions
 open Microsoft.Practices.EnterpriseLibrary.SemanticLogging.Sinks
 open Microsoft.AspNet.SignalR.Client
 open Microsoft.Diagnostics.Tracing
-open Microsoft.WindowsAzure.ServiceRuntime
+//open Microsoft.WindowsAzure.ServiceRuntime
 open System
 open System.Diagnostics
 open System.Threading
@@ -23,7 +23,7 @@ open System.Threading.Tasks.Dataflow
 type Session = {
                  Sinks: Map<string,TraceEvent->unit>     // Map the names in the session to their sink functions.
                  HttpSinks: IDisposable list             // | Tracking the Sinks separately lets us test that
-                 TableSinks: WindowsAzureTableSink list  // | deduplication of sinks happens.
+//                 TableSinks: WindowsAzureTableSink list  // | deduplication of sinks happens.
                  Observers: IDisposable list             // |
                  ToStdout: bool
                }
@@ -32,9 +32,14 @@ type Session = {
         member x.Dispose() =
             x.HttpSinks  |> List.iter (fun s -> s.Dispose())
             x.Observers  |> List.iter (fun d -> d.Dispose())
-            x.TableSinks |> List.iter (fun t -> t.Dispose())
+//            x.TableSinks |> List.iter (fun t -> t.Dispose())
 
-let newSession = {Sinks = Map.empty; HttpSinks = List.empty; TableSinks = List.empty; ToStdout = false; Observers = List.empty}
+let newSession = {
+                    Sinks = Map.empty
+                    HttpSinks = List.empty
+//                    TableSinks = List.empty
+                    ToStdout = false
+                    Observers = List.empty}
 
 let configuration = function
     | {Sinks = sinks} -> sinks |> Map.toList |> List.map fst
@@ -158,23 +163,23 @@ let private resolveSink (printDebug : bool) (name: string) session =
         {session with Sinks = Map.add name sink session.Sinks; HttpSinks = connection :: session.HttpSinks}
     if name.StartsWith("http") || name.StartsWith("https") then
         resolveHttp printDebug name session
-    else if name.StartsWith("azure") then
-        let parts = name.Split([|':'|])
-        if parts.Length < 2 then invalidArg "name" (sprintf "Not a valid Azure table sink name: %s" name)
-        let tableName = tableNameFrom (parts.[1])
-        let connectionString = connectionStringFrom (parts.[1])
-        let sink = new WindowsAzureTableSink("instanceName", connectionString, tableName, TimeSpan.FromSeconds(1.0), 2000, Timeout.InfiniteTimeSpan)
-        let newPub = azureTable sink
-        {session with Sinks = Map.add name newPub session.Sinks; TableSinks = sink :: session.TableSinks}
-    else if name.StartsWith("role") then
-        let parts = name.Split([|':'|])
-        if parts.Length < 3 then invalidArg "name" (sprintf "Not a valid Role sink name: %s" name)
-        let roleName = parts.[1]
-        let endpoint = parts.[2]
-        RoleEnvironment.Roles.[roleName].Instances
-        |> Seq.map (fun instance -> instance.InstanceEndpoints.[endpoint].IPEndpoint)
-        |> Seq.map (fun endpoint -> sprintf "http://%s:%d" (endpoint.Address.ToString()) endpoint.Port)
-        |> Seq.fold (fun newSession sink -> resolveHttp printDebug sink newSession) session
+//    else if name.StartsWith("azure") then
+//        let parts = name.Split([|':'|])
+//        if parts.Length < 2 then invalidArg "name" (sprintf "Not a valid Azure table sink name: %s" name)
+//        let tableName = tableNameFrom (parts.[1])
+//        let connectionString = connectionStringFrom (parts.[1])
+//        let sink = new WindowsAzureTableSink("instanceName", connectionString, tableName, TimeSpan.FromSeconds(1.0), 2000, Timeout.InfiniteTimeSpan)
+//        let newPub = azureTable sink
+//        {session with Sinks = Map.add name newPub session.Sinks; TableSinks = sink :: session.TableSinks}
+//    else if name.StartsWith("role") then
+//        let parts = name.Split([|':'|])
+//        if parts.Length < 3 then invalidArg "name" (sprintf "Not a valid Role sink name: %s" name)
+//        let roleName = parts.[1]
+//        let endpoint = parts.[2]
+//        RoleEnvironment.Roles.[roleName].Instances
+//        |> Seq.map (fun instance -> instance.InstanceEndpoints.[endpoint].IPEndpoint)
+//        |> Seq.map (fun endpoint -> sprintf "http://%s:%d" (endpoint.Address.ToString()) endpoint.Port)
+//        |> Seq.fold (fun newSession sink -> resolveHttp printDebug sink newSession) session
     else if name.ToLower() = "stdout" then
         {session with ToStdout = true}
     else
