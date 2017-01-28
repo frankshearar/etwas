@@ -180,17 +180,33 @@ type Etwass() =
 
     [<Test>]
     member x.``starts listening on specified port``() =
-        let proc = run etwass "--port 8081"
-        try
-            System.Threading.Thread.Sleep(TimeSpan.FromSeconds 1.0) // It takes as long as this to actually spin up the process and register the socket!
+        let isRunning () =
             match run "netstat" "-anp TCP" with
             | Right p ->
                 let output = p.StandardOutput.ReadToEnd()
                 let ports = output.Split([|"\r\n"|], StringSplitOptions.RemoveEmptyEntries)
                             |> Array.filter (fun s -> s.Contains "LISTENING")
                             |> Array.filter (fun s -> s.Contains "8081")
-                CollectionAssert.IsNotEmpty(ports, "Nothing listening")
-            | Left e -> Assert.Fail(sprintf "Couldn't run netstat: %s" (e.ToString()))
+                printfn "%s" "netstat says running:"
+                ports |> Array.iter (fun port -> printfn "%s" port)
+                printfn "%s" "========================="
+                Array.isEmpty ports |> not
+            | Left e ->
+                Assert.Fail(sprintf "Couldn't run netstat: %s" (e.ToString())) // Abort early. Yes, a predicate that throws is lame.
+                false // Can't be reached!
+        let checker = async {
+                                while not(isRunning()) do
+                                    do! Async.Sleep 500
+                            }
+
+        let proc = run etwass "--port 8081"
+        try
+            // If etwass starts running, the process will complete. Otherwise,
+            // we will cancel
+            match checker |> Async.CancelAfter 5000 |> Async.RunSynchronously with
+            | Some _ -> () // All good!
+            | None   -> Assert.Fail("Nothing listening")
+
         finally
         match proc with
         | Right p -> p.Kill()
