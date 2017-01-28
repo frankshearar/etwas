@@ -43,15 +43,21 @@ let sh program args: int * string =
     | Left e ->
         -1, sprintf "FAILED TO START THE PROCESS %A %A (%s)" program args e
 
+#if DEBUG
+let configuration = "Debug"
+#else
+let configuration = "Release"
+#endif
+
 let etwas =
     let cwd = new DirectoryInfo(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory))
     let solnDir = cwd.Parent.Parent.Parent.Parent.FullName
-    Path.Combine(solnDir, @"src\etwas\bin\Debug\etwas.exe")
+    Path.Combine(solnDir, "src", "etwas", "bin", configuration, "etwas.exe")
 
 let etwass =
     let cwd = new DirectoryInfo(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory))
     let solnDir = cwd.Parent.Parent.Parent.Parent.FullName
-    Path.Combine(solnDir, @"src\etwass\bin\Debug\etwass.exe")
+    Path.Combine(solnDir, "src", "etwass", "bin", configuration, "etwass.exe")
 
 [<TestFixture>]
 type Etwas() =
@@ -96,29 +102,53 @@ type Etwas() =
 
     [<Test>]
     member x.``can log events out-of-process``() =
-        // This will ensure we have at least one interesting event.
-        Ping.ping.Ping()
+        let started = ref false // We COULD use a ManualSetEvent, but why bother?
+        let found = ref false
+
+        let pinger = async {
+            // Wait for ETWas to have started ETWassing.
+            while not(!started) do
+                do! Async.Sleep 500
+            while not(!found) do
+                do! Async.Sleep 500
+                Ping.ping.Ping()
+            return ""
+        }
+
         let processForaBit = async {
                                 let proc = run etwas (sprintf "--source %s" Ping.ping.Name)
                                 match proc with
                                 | Right p ->
                                     let output = new StringBuilder()
-                                    let error = new StringBuilder()
-                                    p.OutputDataReceived.Add(fun args -> output.Append(args.Data) |> ignore)
-                                    p.ErrorDataReceived.Add(fun args -> error.Append(args.Data) |> ignore)
+                                    p.OutputDataReceived.Add(fun args -> output.AppendLine(args.Data) |> ignore; printfn "s>> %s" args.Data)
+                                    p.ErrorDataReceived.Add( fun args -> output.AppendLine(args.Data) |> ignore; printfn "e>> %s" args.Data)
                                     p.BeginErrorReadLine()
                                     p.BeginOutputReadLine()
-                                    do! Async.Sleep 5000 // Fairly arbitrary pause; seems like out-of-process ETW logging has a latency of ~2 seconds.
+                                    started := true
+                                    // Wait for the Pinger to have Pinged.
+                                    // Yes, this is mildly ridiculous to repeatedly ToString().
+                                    while not(output.ToString().Contains("Event: 2000 (Ping)")) do
+                                        printfn "==="
+                                        printfn "%s" (output.ToString())
+                                        printfn "==="
+                                        printfn "not found. sleeping."
+                                        do! Async.Sleep 500
+                                    printfn "found! killing!"
+                                    found := true
                                     p.Kill()
-                                    return output.Append(error.ToString()).ToString()
+                                    return output.ToString()
                                 | Left e -> return sprintf "Process didn't run? (%s)" e
                              }
-        let stdout = processForaBit |> Async.CancelAfter 6000 |> Async.RunSynchronously
+
+        let stdout = [processForaBit; pinger] |> Async.Parallel |> Async.CancelAfter 30000 |> Async.RunSynchronously
+                     // Because there are multiple Async workflows, we get a seq of strings.
+                     // For ease of debugging, we just bung them all together.
+                     |> Option.map (fun strings -> System.String.Join("\n", strings))
         match stdout with
         | Some s ->
             Assert.IsNotEmpty(s)
             // Not an actual event, this shows we see the advertised metadata of the event source.
-            Assert.That(s.Contains(@"ProviderName=""Ping"""), (sprintf "Ping event source not found in stdout: %s" s))
+            Assert.That(s.Contains("Event: 2000 (Ping)"), (sprintf "Ping event source not found in stdout: %s" s))
         | None -> Assert.Fail("Something went wrong")
     [<Test>]
     member x.``stops session gracefully``() =
@@ -150,18 +180,33 @@ type Etwass() =
 
     [<Test>]
     member x.``starts listening on specified port``() =
-        let proc = run etwass "--port 8081"
-        try
-            System.Threading.Thread.Sleep(TimeSpan.FromSeconds 1.0) // It takes as long as this to actually spin up the process and register the socket!
+        let isRunning () =
             match run "netstat" "-anp TCP" with
             | Right p ->
                 let output = p.StandardOutput.ReadToEnd()
-                output.Split([|"\r\n"|], StringSplitOptions.RemoveEmptyEntries)
-                |> Array.filter (fun s -> s.Contains "LISTENING")
-                |> Array.filter (fun s -> s.Contains "8081")
-                |> fun s -> s, "Nothing listening"
-                |> Assert.IsNotEmpty
-            | Left e -> Assert.Fail(sprintf "Couldn't run netstat: %s" (e.ToString()))
+                let ports = output.Split([|"\r\n"|], StringSplitOptions.RemoveEmptyEntries)
+                            |> Array.filter (fun s -> s.Contains "LISTENING")
+                            |> Array.filter (fun s -> s.Contains "8081")
+                printfn "%s" "netstat says running:"
+                ports |> Array.iter (fun port -> printfn "%s" port)
+                printfn "%s" "========================="
+                Array.isEmpty ports |> not
+            | Left e ->
+                Assert.Fail(sprintf "Couldn't run netstat: %s" (e.ToString())) // Abort early. Yes, a predicate that throws is lame.
+                false // Can't be reached!
+        let checker = async {
+                                while not(isRunning()) do
+                                    do! Async.Sleep 500
+                            }
+
+        let proc = run etwass "--port 8081"
+        try
+            // If etwass starts running, the process will complete. Otherwise,
+            // we will cancel
+            match checker |> Async.CancelAfter 5000 |> Async.RunSynchronously with
+            | Some _ -> () // All good!
+            | None   -> Assert.Fail("Nothing listening")
+
         finally
         match proc with
         | Right p -> p.Kill()
