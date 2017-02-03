@@ -11,7 +11,6 @@ type Arguments =
             match s with
             | Rate _ -> "(Estimated) events published per second. Default: 1 event/s"
 
-
 let registerExitOnCtrlC (canceller: CancellationTokenSource) =
     Console.CancelKeyPress
     |> Observable.subscribe (fun _ ->
