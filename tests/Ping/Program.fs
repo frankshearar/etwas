@@ -53,7 +53,7 @@ let main argv =
                 while true do
                     if eventsPerSecond > 0L then
                         while timer.ElapsedTicks < ticksPerSend do
-                            System.Threading.Thread.Sleep(0)
+                            do! Async.Sleep 0
                     Interlocked.Increment(msgCount) |> ignore
                     Ping.ping.Ping()
                     timer.Restart()
